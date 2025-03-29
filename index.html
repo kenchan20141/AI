@@ -87,9 +87,6 @@
         #narrativeElementsArea {
             display: none;
         }
-        #customTopicArea table {
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
@@ -123,15 +120,7 @@
             <button onclick="generateTopic()">生成寫作題目</button>
         </div>
         <div id="customTopicArea" style="display: none;">
-            <table>
-                <tr><th colspan="2">自訂題目</th></tr>
-                <tr><td colspan="2"><input type="text" id="customTopic" placeholder="請輸入自訂題目"></td></tr>
-                <tr><th>結構段重點</th><th>情節大要</th></tr>
-                <tr>
-                    <td><textarea id="customFocus" rows="3" placeholder="請輸入結構段重點"></textarea></td>
-                    <td><textarea id="customPlot" rows="3" placeholder="請輸入情節大要"></textarea></td>
-                </tr>
-            </table>
+            <input type="text" id="customTopic" placeholder="請輸入自訂題目">
             <button onclick="setCustomTopic()">確認題目</button>
         </div>
         <div id="topicResult"></div>
@@ -160,24 +149,16 @@
         // 範疇定義（包括出題提示和教學筆記）
         const categories = {
             "片段描寫": {
-                topicPrompt: `請生成一道適合中學生練習片段描寫的題目，並同時生成「結構段重點」和「情節大要」。要求：
-1. 題目必須包含兩個部分：一是片段要交代的情節和敘事重點，二是強調的人物感情，20字以內。
-2. 「結構段重點」需解釋該片段與題目的邏輯關係，如何扣題。
-3. 「情節大要」需根據「結構段重點」生成具體情節。
-4. 輸出格式為：
-   題目：[題目內容]
-   結構段重點：[重點內容]
-   情節大要：[情節內容]
-5. 加快生成速度，題目多樣化，避免重複考試或下雨主題。`,
-                commentNote: `必須用繁體字。點評時，分為兩方面：1. 詳略剪裁（是否突出與題目相關的重點）；2. 文句（示現敘事和文句密度，包括詞匯深度、物象豐富度、實詞與虛詞比例）。只選最重要的一至兩點評論。若「結構段重點」與題目關係薄弱或「情節大要」未突顯重點，需重點指出此問題。點評分三部分：### 點評、### 建議、### 改寫範例。內容精簡，避免多點評論或無關內容。「片段描寫」要求：1. 交替運用示現敘事（小物件、動作、對話、內心獨白）；2. 提高文句密度（高級詞匯、豐富物象、實詞為主）；3. 詳略得當，與題目相關內容詳寫，次要部分略寫。`
+                topicPrompt: "請生成一道適合中學生練習片段描寫的題目，要求：1.必須包含兩個部份,一是片段要交代甚麼情節、敘事重點是甚麼,二是要強調的人物感情。 2.只生成一道題目，20字以內 3.加快生成速度 4.除了題目之外，不要生成其他任何內容 5.題目要多變化,不要老是與考試、下雨有關",
+                commentNote: "必須用繁體字。點評時，必須就上述生成的題目點評寫作內容是否扣題，假如離題，範例便不必根據原文離題內容改寫。此外，點評應分為三個部份：點評、建議、改寫範例。此外，只需要找出最值得點評及建議的一點去評論即可，無論點評或建議，內容都要精簡，不要提及數點，不要用括號，不要輸出與點評及建議無關的內容，否則會令學生讀之生厭。所謂「片段描寫」，是指行文時運用小物件、動作、對話和內心獨白這四種敘事方式，敘事時，亦須注意文句密度，即「詞匯深度」、「物象豐富度」、「實詞和虛詞比例」（好的文句，應該實詞為主，絕對不能大量運用虛詞）。在片段詳略中，學生需要學會在敘述中控制節奏，通過詳寫與題目相關的重要場景和略寫對扣題較次要的部分來增強故事效果。此外，「片段描寫」有以下三個要求：1. 交替運用示現敘事（即運用小物件、動作、對話和內心獨白這四種敘事方式）；2. 適當地提高文句密度（即增加程度較高的詞匯、物象要豐富、增加實詞而減少虛詞）；3. 片段詳略必須得當，與題目很有關係的內容才詳寫，反之則略寫甚或不寫。"
             },
             "大綱": {
-                topicPrompt: "請生成一道適合中學生練習寫作大綱的題目，要求：1. 10字以內 2. 加快生成速度 3. 僅生成題目",
-                commentNote: "必須用繁體字。點評時，評估大綱是否扣題，分三部分：點評、建議、改寫範例。注意邏輯性、條理性及結構完整性，分析每段與題目關係。「改寫後的大綱」需說明扣題邏輯，避免哲學性或抽象術語，用日常化語言，加入人物回憶或經歷使內容具體。"
+                topicPrompt: "請生成一道適合中學生練習寫作大綱的題目，要求：1..10字以內 2.加快生成速度 3.除了題目之外，不要生成其他任何內容",
+                commentNote: "必須用繁體字。點評時，必須就上述生成的題目點評大綱內容是否扣題，假如大綱離題，範例便不必根據離題內容改寫。此外，點評應分為三個部份：點評、建議、改寫範例。在寫作大綱時，學生應展示他們組織思路和結構故事的能力。評分時，請注意大綱的邏輯性、條理性以及是否包含了故事的起承轉合或三線結構。要逐部分分析每個結構段與題目的關係有多大，並在點評中明確指出。此外，在「改寫後的大綱」,其「結構段重點」必須交代該部份與題目之間的邏輯關係，即怎樣做到扣題。此外，由於是應試文章，因此改寫後的大綱避免過份具理論哲學性及文學性，以至於脫離了現實和日常生活，亦圍繞人在經歷的情感和體悟設定，必須減少概念模糊的術語，例如「情感載體」及「時空的共創」，請用日常化用語描述。此外，「改寫後的大綱」不宜只圍繞一件事敘寫，這樣會容易寫得太抽象，應適時加插人物與人物之間的回憶或其他經歷，令文章看起來更具體實在。"
             },
             "敘事物象": {
-                topicPrompt: "請生成一道適合中學生練習敘事物象的題目，要求：1. 包含情節與感情兩部分 2. 20字以內 3. 加快生成速度 4. 僅生成題目 5. 多樣化",
-                commentNote: "必須用繁體字。生成50個與題目和背景相關的雙字物象，增強生動性與情感表達，排版清晰，不重複。"
+                topicPrompt: "請生成一道適合中學生練習敘事物象的題目，要求：1.必須包含兩個部份,一是片段要交代甚麼情節、敘事重點是甚麼,二是要強調的人物感情。 2.只生成一道題目，20字以內 3.加快生成速度 4.除了題目之外，不要生成其他任何內容 5.題目要多變化",
+                commentNote: "必須用繁體字。在「敘事物象」中，學生需要運用豐富的物象來增強故事的生動性和真實感。物象應與題目、取材和故事背景緊密相關，並且能夠有效地表達人物的情感和故事的主題。請確保生成的物象不重複，並且排版清晰易讀。此外，每個物象都必須由兩個字構成。"
             }
         };
 
@@ -207,32 +188,22 @@
                 outlineTableArea.innerHTML = "";
             }
             commentResult.innerHTML = "";
-            toggleTopicInput();
         }
 
         // 切換題目輸入方式
         function toggleTopicInput() {
-            const category = document.getElementById("category").value;
             const option = document.getElementById("topicOption").value;
-            const customTopicArea = document.getElementById("customTopicArea");
-
             if (option === "generate") {
                 document.getElementById("generateTopicArea").style.display = "block";
-                customTopicArea.style.display = "none";
+                document.getElementById("customTopicArea").style.display = "none";
+                document.getElementById("topicResult").innerHTML = "";
+                localStorage.removeItem("currentTopic");
             } else {
                 document.getElementById("generateTopicArea").style.display = "none";
-                customTopicArea.style.display = "block";
-                if (category === "片段描寫") {
-                    customTopicArea.querySelector("table").style.display = "table";
-                } else {
-                    customTopicArea.querySelector("table").style.display = "none";
-                    customTopicArea.innerHTML = `
-                        <input type="text" id="customTopic" placeholder="請輸入自訂題目">
-                        <button onclick="setCustomTopic()">確認題目</button>`;
-                }
+                document.getElementById("customTopicArea").style.display = "block";
+                document.getElementById("topicResult").innerHTML = "";
+                localStorage.removeItem("currentTopic");
             }
-            document.getElementById("topicResult").innerHTML = "";
-            localStorage.removeItem("currentTopic");
         }
 
         // 生成寫作題目
@@ -256,24 +227,10 @@
                 });
 
                 const data = await response.json();
-                const result = data.choices[0].message.content.trim();
-
-                if (category === "片段描寫") {
-                    const lines = result.split("\n");
-                    const topic = lines[0].replace("題目：", "").trim();
-                    const focus = lines[1].replace("結構段重點：", "").trim();
-                    const plot = lines[2].replace("情節大要：", "").trim();
-                    document.getElementById("topicResult").innerHTML = `
-                        <table>
-                            <tr><th colspan="2">今日題目：${topic}</th></tr>
-                            <tr><th>結構段重點</th><th>情節大要</th></tr>
-                            <tr><td>${focus}</td><td>${plot}</td></tr>
-                        </table>`;
-                    localStorage.setItem("currentTopic", JSON.stringify({ topic, focus, plot }));
-                } else {
-                    document.getElementById("topicResult").innerHTML = "今日題目：<strong>" + result + "</strong>";
-                    localStorage.setItem("currentTopic", result);
-                }
+                const topic = data.choices[0].message.content.trim();
+                document.getElementById("topicResult").innerHTML = 
+                    "今日題目：<strong>" + topic + "</strong>";
+                localStorage.setItem("currentTopic", topic);
             } catch (error) {
                 alert("生成題目時出錯，請重試");
                 document.getElementById("topicResult").innerHTML = "";
@@ -282,32 +239,14 @@
 
         // 設定自訂題目
         function setCustomTopic() {
-            const category = document.getElementById("category").value;
             const customTopic = document.getElementById("customTopic").value.trim();
-
             if (!customTopic) {
                 alert("請輸入自訂題目");
                 return;
             }
-
-            if (category === "片段描寫") {
-                const customFocus = document.getElementById("customFocus").value.trim();
-                const customPlot = document.getElementById("customPlot").value.trim();
-                if (!customFocus || !customPlot) {
-                    alert("請填寫結構段重點和情節大要");
-                    return;
-                }
-                document.getElementById("topicResult").innerHTML = `
-                    <table>
-                        <tr><th colspan="2">自訂題目：${customTopic}</th></tr>
-                        <tr><th>結構段重點</th><th>情節大要</th></tr>
-                        <tr><td>${customFocus}</td><td>${customPlot}</td></tr>
-                    </table>`;
-                localStorage.setItem("currentTopic", JSON.stringify({ topic: customTopic, focus: customFocus, plot: customPlot }));
-            } else {
-                document.getElementById("topicResult").innerHTML = "自訂題目：<strong>" + customTopic + "</strong>";
-                localStorage.setItem("currentTopic", customTopic);
-            }
+            document.getElementById("topicResult").innerHTML = 
+                "自訂題目：<strong>" + customTopic + "</strong>";
+            localStorage.setItem("currentTopic", customTopic);
         }
 
         // 生成大綱表格
@@ -327,16 +266,14 @@
         // 提交作文獲取點評
         async function submitWriting() {
             const category = document.getElementById("category").value;
-            const storedTopic = localStorage.getItem("currentTopic");
-            if (!storedTopic) {
+            const topic = localStorage.getItem("currentTopic");
+            if (!topic) {
                 alert("請先設定題目");
                 return;
             }
 
-            let topicData = category === "片段描寫" ? JSON.parse(storedTopic) : { topic: storedTopic };
             let content = "";
             let structure = "";
-
             if (category === "大綱") {
                 structure = document.getElementById("structure").value;
                 const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
@@ -371,7 +308,7 @@
 3. 在「=== 改寫說明 ===」部分，提供不超過兩點的改寫說明，每點以「1. 」和「2. 」開始。
 請確保內容簡潔明了。
 
-題目：${topicData.topic}
+題目：${topic}
 大綱結構：${structure === "fourPart" ? "起承轉合" : "三線（起、一線、二線、三線、合）"}
 用戶輸入的大綱：
 | 部份 | 結構段重點 | 情節大要 |
@@ -385,20 +322,17 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 3. 請以列表形式呈現，每個物象占一行。
 4. 請確保物象不重複且排版整齊。
 
-題目：${topicData.topic}
+題目：${topic}
 取材/故事背景：${content || "無具體背景，根據題目生成"}
 教學筆記：${note}`;
             } else {
                 prompt = `請根據以下內容進行點評，要求：
 1. 簡明扼要
 2. 參考教學筆記
-3. 評論寫作內容與題目、「結構段重點」和「情節大要」的關係
+3. 評論寫作內容與題目的關係
 4. 輸出分為三個部分：### 點評、### 建議、### 改寫範例
-5. 若「結構段重點」與題目關係薄弱或「情節大要」未突顯重點，需重點指出
 
-題目：${topicData.topic}
-結構段重點：${topicData.focus}
-情節大要：${topicData.plot}
+題目：${topic}
 寫作內容：${content}
 教學筆記：${note}`;
             }
