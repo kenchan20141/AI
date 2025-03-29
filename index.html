@@ -1,4 +1,399 @@
-// 提交寫作內容
+
+
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文老師的救星</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .box {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin: 15px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        select, textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #f0f0f0;
+        }
+        #topicResult, #commentResult {
+            margin-top: 15px;
+            color: #333;
+        }
+        #commentResult h3 {
+            margin-bottom: 10px;
+        }
+        #commentResult pre {
+            background: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+        }
+        #commentResult ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #commentResult li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        #outlineStructureArea, #narrativeElementsArea, #readingFunctionArea, #readingInputArea, #writingArea {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>中文老師的救星</h1>
+
+    <!-- 範疇選擇 -->
+    <div class="box">
+        <label for="scope">選擇練習範疇：</label>
+        <select id="scope" onchange="toggleScope()">
+            <option value="writing">寫作</option>
+            <option value="reading">閱讀</option>
+        </select>
+        <div id="writingCategoryArea">
+            <label for="category">選擇寫作類型：</label>
+            <select id="category" onchange="toggleCategory()">
+                <option value="片段描寫">片段描寫</option>
+                <option value="大綱">大綱</option>
+                <option value="敘事物象">敘事物象</option>
+            </select>
+            <div id="outlineStructureArea">
+                <label for="structure">選擇大綱結構：</label>
+                <select id="structure" onchange="generateOutlineTable()">
+                    <option value="fourPart">起承轉合</option>
+                    <option value="threeLine">三線</option>
+                </select>
+            </div>
+        </div>
+        <div id="readingFunctionArea">
+            <label for="readingFunction">選擇閱讀功能：</label>
+            <select id="readingFunction" onchange="toggleReadingFunction()">
+                <option value="comment">點評</option>
+                <option value="guide">指引</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 題目選擇 -->
+    <div class="box" id="topicSelectionArea">
+        <label for="topicOption">選擇題目方式：</label>
+        <select id="topicOption" onchange="toggleTopicInput()">
+            <option value="generate">生成題目</option>
+            <option value="custom">自訂題目</option>
+        </select>
+        <div id="generateTopicArea">
+            <button onclick="generateTopic()">生成寫作題目</button>
+        </div>
+        <div id="customTopicArea" style="display: none;"></div>
+        <div id="topicResult"></div>
+    </div>
+
+    <!-- 敘事物象輸入 -->
+    <div class="box" id="narrativeElementsArea">
+        <label for="narrativeElements">請輸入您的取材或故事背景：</label>
+        <textarea id="narrativeElements" rows="5" placeholder="例如：故事背景、人物設定、取材來源等..."></textarea>
+    </div>
+
+    <!-- 閱讀輸入 -->
+    <div class="box" id="readingInputArea">
+        <label for="readingText">閱讀篇章：</label>
+        <textarea id="readingText" rows="5" placeholder="請貼上閱讀篇章"></textarea>
+        <label for="question">題目：</label>
+        <textarea id="question" rows="3" placeholder="請貼上題目"></textarea>
+        <div id="studentAnswerArea">
+            <label for="studentAnswer">學生的答案：</label>
+            <textarea id="studentAnswer" rows="5" placeholder="請貼上學生的答案"></textarea>
+        </div>
+        <button onclick="submitReading()">提交</button>
+        <div id="commentResult"></div>
+    </div>
+
+    <!-- 寫作區域 -->
+    <div class="box" id="writingArea">
+        <div id="outlineTableArea"></div>
+        <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
+        <button onclick="submitWritingContent()">提交</button>
+        <div id="commentResult"></div>
+    </div>
+
+    <script>
+        // API 配置信息
+        const API_KEY = "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";
+        const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+        const MODEL = "deepseek/deepseek-r1:free";
+
+        // 範疇定義（包括出題提示和教學筆記）
+        const categories = {
+            "片段描寫": {
+                topicPrompt: "請生成一道適合中學生練習片段描寫的題目，題目應簡潔表達一個主題或場景，20字以內。同時生成該題目的結構段重點和情節大要。要求：1. 結構段重點解釋片段與題目的邏輯關係、如何扣連，突顯描寫重點，不超過50字。2. 情節大要提供圍繞結構段重點的情節概要，不超過100字，應簡潔、準確，避免過多細節，文筆不宜過於華麗，只需概述應寫的情節，留給學生發揮空間。3. 輸出格式為：題目：...\n結構段重點：...\n情節大要：...\n4. 內容簡潔明了，避免冗長。5. 題目多樣化，避免重複。",
+                commentNote: "必須用繁體字。點評時，必須就題目、結構段重點和情節大要評論寫作內容是否扣題，若離題，範例不必根據原文離題內容改寫。點評分為三部分：### 點評、### 建議、### 改寫範例。只選取最重要的一至兩點評論，聚焦詳略剪裁和文句（包括示現敘事和密度）。若結構段重點或情節大要與題目關係薄弱，需在點評中指出並重點說明。內容要精簡、一語中的。片段描寫需交替運用小物件、動作、對話和內心獨白，提高文句密度（詞匯深度高、物象豐富、實詞比例高），並控制詳略節奏，詳寫與題目相關的部分，略寫次要內容。文句密度也是好文筆的標準，需納入考量。點評和建議不應使用列點形式，應以段落呈現。"
+            },
+            "大綱": {
+                topicPrompt: "請生成一道適合中學生練習寫作大綱的題目，要求：1.10字以內 2.加快生成速度 3.除了題目之外，不要生成其他任何內容",
+                commentNote: "必須用繁體字。點評時，必須就上述生成的題目點評大綱內容是否扣題，假如大綱離題，範例便不必根據離題內容改寫。此外，點評應分為三個部份：點評、建議、改寫範例。在寫作大綱時，學生應展示他們組織思路和結構故事的能力。評分時，請注意大綱的邏輯性、條理性以及是否包含了故事的起承轉合或三線結構。要逐部分分析每個結構段與題目的關係有多大，並在點評中明確指出。此外，在「改寫後的大綱」,其「結構段重點」必須交代該部份與題目之間的邏輯關係，即怎樣做到扣題。此外，由於是應試文章，因此改寫後的大綱避免過份具理論哲學性及文學性，以至於脫離了現實和日常生活，亦圍繞人在經歷的情感和體悟設定，必須減少概念模糊的術語，例如「情感載體」及「時空的共創」，請用日常化用語描述。此外，「改寫後的大綱」不宜只圍繞一件事敘寫，這樣會容易寫得太抽象，應適時加插人物與人物之間的回憶或其他經歷，令文章看起來更具體實在。"
+            },
+            "敘事物象": {
+                topicPrompt: "請生成一道適合中學生練習敘事物象的題目，要求：1.必須包含兩個部份,一是片段要交代甚麼情節、敘事重點是甚麼,二是要強調的人物感情。2.只生成一道題目，20字以內 3.加快生成速度 4.除了題目之外，不要生成其他任何內容 5.題目要多變化",
+                commentNote: "必須用繁體字。在「敘事物象」中，學生需要運用豐富的物象來增強故事的生動性和真實感。物象應與題目、取材和故事背景緊密相關，並且能夠有效地表達人物的情感和故事的主題。請確保生成的物象不重複，並且排版清晰易讀。此外，每個物象都必須由兩個字構成。"
+            },
+            "閱讀": {
+                commentNote: "，應以文本中諷刺對象的具體行為作為證據，支持我們所指出的共通點。文本依據必須充實具體，它涉及時、地、人、事、物等元素。 (4) 闡釋：「闡釋」是指解釋文本根據如何證明我們的想法是正確的，亦即所謂「論證」。例如「作者寫到『這就是跑道：繁榮中有一種孤獨』。試綜合全文，說明句中『繁榮』和『孤獨』分別指甚麼？」在我們找出相關的文本依據後，應具體解釋該些內容與「繁榮」及「孤獨」有何關係。所以，闡釋是要用文本依據去論證主題句如何成立。 不過你需要因應題目而決定如何運用以上四步，有些題目是「回應＋文本依據＋闡釋」，有些題目則是「鋪墊＋鋪墊＋闡釋」，要求你一步步深入地分析，例如問「為何主角父親會在向村民介紹媳婦時會靦腆」，則可先從父親的性格開始鋪墊，再交代向村民介紹媳婦對父親這種性格的人有甚麼困難，最後則可以分析這種困難為何會令父親覺得尷尬。你需要靈活變通運用以上四個步驟，去解答長問答題。"
+            }
+        };
+
+        // 切換範疇
+        function toggleScope() {
+            const scope = document.getElementById("scope").value;
+            const writingCategoryArea = document.getElementById("writingCategoryArea");
+            const readingFunctionArea = document.getElementById("readingFunctionArea");
+            const topicSelectionArea = document.getElementById("topicSelectionArea");
+            const narrativeElementsArea = document.getElementById("narrativeElementsArea");
+            const readingInputArea = document.getElementById("readingInputArea");
+            const writingArea = document.getElementById("writingArea");
+            const commentResult = document.getElementById("commentResult");
+
+            if (scope === "writing") {
+                writingCategoryArea.style.display = "block";
+                readingFunctionArea.style.display = "none";
+                topicSelectionArea.style.display = "block";
+                readingInputArea.style.display = "none";
+                writingArea.style.display = "block";
+                toggleCategory();
+            } else { // reading
+                writingCategoryArea.style.display = "none";
+                readingFunctionArea.style.display = "block";
+                topicSelectionArea.style.display = "none";
+                narrativeElementsArea.style.display = "none";
+                readingInputArea.style.display = "block";
+                writingArea.style.display = "none";
+                toggleReadingFunction();
+            }
+            commentResult.innerHTML = "";
+        }
+
+        // 切換寫作類型
+        function toggleCategory() {
+            const category = document.getElementById("category").value;
+            const outlineStructureArea = document.getElementById("outlineStructureArea");
+            const narrativeElementsArea = document.getElementById("narrativeElementsArea");
+            const writingContent = document.getElementById("writingContent");
+            const outlineTableArea = document.getElementById("outlineTableArea");
+
+            if (category === "大綱") {
+                outlineStructureArea.style.display = "block";
+                narrativeElementsArea.style.display = "none";
+                writingContent.style.display = "none";
+                generateOutlineTable();
+            } else if (category === "敘事物象") {
+                outlineStructureArea.style.display = "none";
+                narrativeElementsArea.style.display = "block";
+                writingContent.style.display = "none";
+                outlineTableArea.innerHTML = "";
+            } else { // 片段描寫
+                outlineStructureArea.style.display = "none";
+                narrativeElementsArea.style.display = "none";
+                writingContent.style.display = "block";
+                outlineTableArea.innerHTML = "";
+            }
+            toggleTopicInput();
+        }
+
+        // 切換閱讀功能
+        function toggleReadingFunction() {
+            const readingFunction = document.getElementById("readingFunction").value;
+            const studentAnswerArea = document.getElementById("studentAnswerArea");
+            if (readingFunction === "comment") {
+                studentAnswerArea.style.display = "block";
+            } else {
+                studentAnswerArea.style.display = "none";
+            }
+        }
+
+        // 切換題目輸入方式
+        function toggleTopicInput() {
+            const category = document.getElementById("category").value;
+            const option = document.getElementById("topicOption").value;
+            const customTopicArea = document.getElementById("customTopicArea");
+            if (option === "generate") {
+                document.getElementById("generateTopicArea").style.display = "block";
+                customTopicArea.style.display = "none";
+                document.getElementById("topicResult").innerHTML = "";
+                localStorage.removeItem("currentTopic");
+                localStorage.removeItem("currentFocus");
+                localStorage.removeItem("currentPlot");
+            } else {
+                document.getElementById("generateTopicArea").style.display = "none";
+                customTopicArea.style.display = "block";
+                document.getElementById("topicResult").innerHTML = "";
+                localStorage.removeItem("currentTopic");
+                localStorage.removeItem("currentFocus");
+                localStorage.removeItem("currentPlot");
+                if (category === "片段描寫") {
+                    customTopicArea.innerHTML = `
+                        <table>
+                            <tr><th colspan="2">自訂題目</th></tr>
+                            <tr><td colspan="2"><input type="text" id="customTitle" placeholder="請輸入自訂題目"></td></tr>
+                            <tr><td>結構段重點</td><td>情節大要</td></tr>
+                            <tr><td><textarea id="customFocus" rows="3" placeholder="請輸入結構段重點"></textarea></td>
+                                <td><textarea id="customPlot" rows="3" placeholder="請輸入情節大要"></textarea></td></tr>
+                        </table>
+                        <button onclick="setCustomTopic()">確認題目</button>
+                    `;
+                } else {
+                    customTopicArea.innerHTML = `
+                        <input type="text" id="customTopic" placeholder="請輸入自訂題目">
+                        <button onclick="setCustomTopic()">確認題目</button>
+                    `;
+                }
+            }
+        }
+
+        // 生成寫作題目
+        async function generateTopic() {
+            const category = document.getElementById("category").value;
+            const prompt = categories[category].topicPrompt;
+
+            document.getElementById("topicResult").innerHTML = "正在生成題目...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                const data = await response.json();
+                const topic = data.choices[0].message.content.trim();
+                if (category === "片段描寫") {
+                    const lines = topic.split("\n");
+                    const title = lines[0].replace("題目：", "").trim();
+                    const focus = lines[1].replace("結構段重點：", "").trim();
+                    const plot = lines[2].replace("情節大要：", "").trim();
+                    document.getElementById("topicResult").innerHTML = `
+                        今日題目：<strong>${title}</strong>
+                        <table>
+                            <tr><th>結構段重點</th><th>情節大要</th></tr>
+                            <tr><td>${focus}</td><td>${plot}</td></tr>
+                        </table>
+                    `;
+                    localStorage.setItem("currentTopic", title);
+                    localStorage.setItem("currentFocus", focus);
+                    localStorage.setItem("currentPlot", plot);
+                } else {
+                    document.getElementById("topicResult").innerHTML = 
+                        "今日題目：<strong>" + topic + "</strong>";
+                    localStorage.setItem("currentTopic", topic);
+                }
+            } catch (error) {
+                alert("生成題目時出錯，請重試");
+                document.getElementById("topicResult").innerHTML = "";
+            }
+        }
+
+        // 設定自訂題目
+        function setCustomTopic() {
+            const category = document.getElementById("category").value;
+            if (category === "片段描寫") {
+                const title = document.getElementById("customTitle").value.trim();
+                const focus = document.getElementById("customFocus").value.trim();
+                const plot = document.getElementById("customPlot").value.trim();
+                if (!title || !focus || !plot) {
+                    alert("請輸入所有內容");
+                    return;
+                }
+                document.getElementById("topicResult").innerHTML = `
+                    自訂題目：<strong>${title}</strong>
+                    <table>
+                        <tr><th>結構段重點</th><th>情節大要</th></tr>
+                        <tr><td>${focus}</td><td>${plot}</td></tr>
+                    </table>
+                `;
+                localStorage.setItem("currentTopic", title);
+                localStorage.setItem("currentFocus", focus);
+                localStorage.setItem("currentPlot", plot);
+            } else {
+                const customTopic = document.getElementById("customTopic").value.trim();
+                if (!customTopic) {
+                    alert("請輸入自訂題目");
+                    return;
+                }
+                document.getElementById("topicResult").innerHTML = 
+                    "自訂題目：<strong>" + customTopic + "</strong>";
+                localStorage.setItem("currentTopic", customTopic);
+            }
+        }
+
+        // 生成大綱表格
+        function generateOutlineTable() {
+            const structure = document.getElementById("structure").value;
+            let parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
+            let tableHTML = "<table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>";
+            parts.forEach((part, index) => {
+                const focusId = structure + "Focus" + (index + 1);
+                const plotId = structure + "Plot" + (index + 1);
+                tableHTML += `<tr><td>${part}</td><td><textarea id="${focusId}" rows="3"></textarea></td><td><textarea id="${plotId}" rows="3"></textarea></td></tr>`;
+            });
+            tableHTML += "</table>";
+            document.getElementById("outlineTableArea").innerHTML = tableHTML;
+        }
+
+        // 提交寫作內容
+        // 提交寫作內容
 async function submitWritingContent() {
     // 立即顯示「正在生成點評...」，提升用戶體驗
     document.getElementById("commentResult").innerHTML = "正在生成點評...";
@@ -184,3 +579,11 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
         alert(error.message || "點評生成失敗，請重試");
     }
 }
+
+        // 頁面加載時初始化
+        window.onload = function() {
+            toggleScope();
+        };
+    </script>
+</body>
+</html>
