@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -183,7 +185,7 @@
                 commentNote: "必須用繁體字。在「敘事物象」中，學生需要運用豐富的物象來增強故事的生動性和真實感。物象應與題目、取材和故事背景緊密相關，並且能夠有效地表達人物的情感和故事的主題。請確保生成的物象不重複，並且排版清晰易讀。此外，每個物象都必須由兩個字構成。"
             },
             "閱讀": {
-                commentNote: "應以文本中諷刺對象的具體行為作為證據，支持我們所指出的共通點。文本依據必須充實具體，它涉及時、地、人、事、物等元素。(4) 闡釋：「闡釋」是指解釋文本根據如何證明我們的想法是正確的，亦即所謂「論證」。例如「作者寫到『這就是跑道：繁榮中有一種孤獨』。試綜合全文，說明句中『繁榮』和『孤獨』分別指甚麼？」在我們找出相關的文本依據後，應具體解釋該些內容與「繁榮」及「孤獨」有何關係。所以，闡釋是要用文本依據去論證主題句如何成立。不過你需要因應題目而決定如何運用以上四步，有些題目是「回應＋文本依據＋闡釋」，有些題目則是「鋪墊＋鋪墊＋闡釋」，要求你一步步深入地分析，例如問「為何主角父親會在向村民介紹媳婦時會靦腆」，則可先從父親的性格開始鋪墊，再交代向村民介紹媳婦對父親這種性格的人有甚麼困難，最後則可以分析這種困難為何會令父親覺得尷尬。你需要靈活變通運用以上四個步驟，去解答長問答題。"
+                commentNote: "，應以文本中諷刺對象的具體行為作為證據，支持我們所指出的共通點。文本依據必須充實具體，它涉及時、地、人、事、物等元素。 (4) 闡釋：「闡釋」是指解釋文本根據如何證明我們的想法是正確的，亦即所謂「論證」。例如「作者寫到『這就是跑道：繁榮中有一種孤獨』。試綜合全文，說明句中『繁榮』和『孤獨』分別指甚麼？」在我們找出相關的文本依據後，應具體解釋該些內容與「繁榮」及「孤獨」有何關係。所以，闡釋是要用文本依據去論證主題句如何成立。 不過你需要因應題目而決定如何運用以上四步，有些題目是「回應＋文本依據＋闡釋」，有些題目則是「鋪墊＋鋪墊＋闡釋」，要求你一步步深入地分析，例如問「為何主角父親會在向村民介紹媳婦時會靦腆」，則可先從父親的性格開始鋪墊，再交代向村民介紹媳婦對父親這種性格的人有甚麼困難，最後則可以分析這種困難為何會令父親覺得尷尬。你需要靈活變通運用以上四個步驟，去解答長問答題。"
             }
         };
 
@@ -582,15 +584,15 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             if (readingFunction === "comment") {
                 prompt = `請根據以下內容進行點評，要求：
 1. 參考教學筆記
-2. 從以下四個角度進行評價：
-   - 答題方向是否合理（最重要）
-   - 文本依據是否充實具體（除非題目要求摘錄，否則避免直接引用原文，應概括歸納）
-   - 闡釋推論是否嚴謹、是否結合文本圍繞觀點解釋（非常重要）
+2. 從以下幾個角度進行評價：
+   - 答題方向是否合理
+   - 文本依據是否充實具體（避免直接引用原文，應概括歸納）
+   - 闡釋推論是否嚴謹、是否結合文本圍繞觀點解釋
    - 主題句是否清晰
 3. 輸出分為兩個部分：### 點評、### 改寫範例
-4. 點評聚焦最重要的一至兩點，使用段落形式，避免列點
-5. 若學生答題方向錯誤，改寫範例不跟從錯誤方向，並避免直接引用原文
-6. 內容簡潔，排版整齊
+4. 點評時，聚焦最重要的一至兩點
+5. 若學生的答題方向錯誤，改寫範例不要跟從錯誤方向
+6. 點評不應使用列點形式，應以段落呈現
 
 閱讀篇章：${readingText}
 題目：${question}
@@ -599,12 +601,13 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             } else {
                 prompt = `請根據以下內容生成答題指引，要求：
 1. 參考教學筆記
-2. 生成「答題步驟及思路」，靈活運用【鋪墊】、【回應】、【文本依據】、【闡釋】等步驟：
-   - 根據題目需要調整步驟順序，不強制所有步驟都出現
-   - 若需從多角度分析，可重複步驟（如【回應】+【文本依據】+【闡釋】多次）
-   - 格式為：【步驟名】：具體內容，每步驟占一行
-3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯，確保不空白，以列表形式呈現
-4. 確保排版整齊，步驟與詞匯分開顯示
+2. 生成「答題步驟及思路」，格式如下：
+   【鋪墊】：XXXX
+   【回應】：XXXX
+   【文本依據】：XXXX
+   【闡釋】：XXXX
+3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯
+4. 確保排版整齊
 
 閱讀篇章：${readingText}
 題目：${question}
@@ -639,23 +642,21 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     resultHTML += "</table>";
                     document.getElementById("commentResult").innerHTML = resultHTML;
                 } else {
-                    const sections = result.split("答題詞匯：").map(part => part.trim());
-                    const stepsPart = sections[0];
-                    const vocabPart = sections[1] || "";
-                    
+                    const [steps, vocab] = result.split("答題詞匯");
+                    const stepsParts = steps.split("\n").map(line => line.trim()).filter(line => line);
                     let stepsHTML = "<h3>答題步驟及思路：</h3><pre>";
-                    stepsPart.split("\n").filter(line => line.trim()).forEach(line => {
-                        stepsHTML += `${line}\n`;
+                    stepsParts.forEach(line => {
+                        stepsHTML += line + "\n";
                     });
                     stepsHTML += "</pre>";
-
+                    const vocabList = vocab.split("\n").map(item => item.trim()).filter(item => item);
                     let vocabHTML = "<h3>答題詞匯：</h3><ul>";
-                    const vocabList = vocabPart.split("\n").map(item => item.trim()).filter(item => item && item.length === 2);
-                    vocabList.slice(0, 15).forEach(word => {
-                        vocabHTML += `<li>${word}</li>`;
+                    vocabList.forEach(word => {
+                        if (word.length === 2) {
+                            vocabHTML += `<li>${word}</li>`;
+                        }
                     });
                     vocabHTML += "</ul>";
-
                     document.getElementById("commentResult").innerHTML = stepsHTML + vocabHTML;
                 }
             } catch (error) {
