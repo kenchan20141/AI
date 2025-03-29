@@ -148,7 +148,7 @@
         // 範疇定義（包括出題提示和教學筆記）
         const categories = {
             "片段描寫": {
-                topicPrompt: "請生成一道適合中學生練習片段描寫的題目，並同時生成該題目的結構段重點和情節大要。要求：1. 題目必須包含兩個部分：一是片段要交代甚麼情節、敘事重點是甚麼，二是要強調的人物感情。2. 題目20字以內。3. 結構段重點要解釋這個片段與題目的邏輯關係、如何扣連等。4. 情節大要根據結構段重點生成。5. 輸出格式為：題目：...\n結構段重點：...\n情節大要：...\n6. 加快生成速度。7. 題目要多變化，不要老是與考試、下雨有關。",
+                topicPrompt: "請生成一道適合中學生練習片段描寫的題目，並同時生成該題目的結構段重點和情節大要。要求：1. 題目必須簡潔明確，20字以內。2. 結構段重點要簡要解釋片段與題目的邏輯關係與扣連方式，言簡意賅。3. 情節大要根據結構段重點生成，簡述故事發展，保持簡潔並留發揮空間。4. 輸出格式為：題目：...\n結構段重點：...\n情節大要：...\n5. 加快生成速度。6. 題目要多變化，避免重複考試、下雨等主題。",
                 commentNote: "必須用繁體字。點評時，必須就題目、結構段重點和情節大要評論寫作內容是否扣題，若離題，範例不必根據原文離題內容改寫。點評分為三部分：### 點評、### 建議、### 改寫範例。只選取最重要的一至兩點評論，聚焦詳略剪裁和文句（包括示現敘事和密度）。若結構段重點或情節大要與題目關係薄弱，需在點評中指出並重點說明。內容要精簡、一語中的。片段描寫需交替運用小物件、動作、對話和內心獨白，提高文句密度（詞匯深度高、物象豐富、實詞比例高），並控制詳略節奏，詳寫與題目相關的部分，略寫次要內容。文句密度也是好文筆的標準，需納入考量。"
             },
             "大綱": {
@@ -211,9 +211,12 @@
                 localStorage.removeItem("currentPlot");
                 if (category === "片段描寫") {
                     customTopicArea.innerHTML = `
-                        <input type="text" id="customTitle" placeholder="請輸入自訂題目">
-                        <textarea id="customFocus" rows="3" placeholder="請輸入結構段重點"></textarea>
-                        <textarea id="customPlot" rows="3" placeholder="請輸入情節大要"></textarea>
+                        <table>
+                            <tr><th colspan="2">自訂題目</th></tr>
+                            <tr><td colspan="2"><input type="text" id="customTitle" placeholder="請輸入自訂題目"></td></tr>
+                            <tr><th>結構段重點</th><th>情節大要</th></tr>
+                            <tr><td><textarea id="customFocus" rows="3" placeholder="請輸入結構段重點"></textarea></td><td><textarea id="customPlot" rows="3" placeholder="請輸入情節大要"></textarea></td></tr>
+                        </table>
                         <button onclick="setCustomTopic()">確認題目</button>
                     `;
                 } else {
@@ -255,6 +258,7 @@
                     document.getElementById("topicResult").innerHTML = `
                         今日題目：<strong>${title}</strong>
                         <table>
+                            <tr><th colspan="2">題目：${title}</th></tr>
                             <tr><th>結構段重點</th><th>情節大要</th></tr>
                             <tr><td>${focus}</td><td>${plot}</td></tr>
                         </table>
@@ -287,6 +291,7 @@
                 document.getElementById("topicResult").innerHTML = `
                     自訂題目：<strong>${title}</strong>
                     <table>
+                        <tr><th colspan="2">題目：${title}</th></tr>
                         <tr><th>結構段重點</th><th>情節大要</th></tr>
                         <tr><td>${focus}</td><td>${plot}</td></tr>
                     </table>
