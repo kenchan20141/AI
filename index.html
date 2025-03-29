@@ -50,6 +50,8 @@
             width: 100%;
             border-collapse: collapse;
             margin: 10px 0;
+            overflow-x: auto;
+            display: block;
         }
         th, td {
             border: 1px solid #ccc;
@@ -386,13 +388,13 @@
         function generateOutlineTable() {
             const structure = document.getElementById("structure").value;
             let parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
-            let tableHTML = "<table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>";
+            let tableHTML = "<div style='overflow-x: auto;'><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>";
             parts.forEach((part, index) => {
                 const focusId = structure + "Focus" + (index + 1);
                 const plotId = structure + "Plot" + (index + 1);
                 tableHTML += `<tr><td>${part}</td><td><textarea id="${focusId}" rows="3"></textarea></td><td><textarea id="${plotId}" rows="3"></textarea></td></tr>`;
             });
-            tableHTML += "</table>";
+            tableHTML += "</table></div>";
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
         }
 
@@ -528,20 +530,20 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         const comments = parseCommentPart(commentPart);
                         const rewrites = parseRewritePart(rewritePart);
 
-                        let commentTableHTML = "<h3>AI點評及建議：</h3><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>";
+                        let commentTableHTML = "<h3>AI點評及建議：</h3><div style='overflow-x: auto;'><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>";
                         content.forEach(item => {
                             const comment = comments[item.part] ? comments[item.part].comment : "無";
                             const suggestion = comments[item.part] ? comments[item.part].suggestion : "無";
                             commentTableHTML += `<tr><td>${item.part}</td><td>${item.focus}</td><td>${item.plot}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
                         });
-                        commentTableHTML += "</table>";
+                        commentTableHTML += "</table></div>";
 
-                        let rewriteTableHTML = "<h3>改寫後的大綱：</h3><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>";
+                        let rewriteTableHTML = "<h3>改寫後的大綱：</h3><div style='overflow-x: auto;'><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>";
                         parts.forEach(part => {
                             const rewrite = rewrites[part] || { focus: "無", plot: "無" };
                             rewriteTableHTML += `<tr><td>${part}</td><td>${rewrite.focus}</td><td>${rewrite.plot}</td></tr>`;
                         });
-                        rewriteTableHTML += "</table>";
+                        rewriteTableHTML += "</table></div>";
 
                         const explanationHTML = `<h3>改寫說明：</h3><pre>${explanationPart ? explanationPart.trim() : "無說明"}</pre>`;
                         document.getElementById("commentResult").innerHTML = commentTableHTML + rewriteTableHTML + explanationHTML;
@@ -592,11 +594,10 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 2. 評估文本依據是否充實具體，且是否適當概括歸納而非直接引用（除非題目要求摘錄）
 3. 評估闡釋推論是否嚴謹、具體圓足
 4. 評估主題句是否清晰
-5. 在「### 答題步驟及思路」前，加入點評，以段落形式呈現，不使用列點
-6. 在「### 答題步驟及思路」中，描述各部分方向，步驟因題制宜，可能包括【鋪墊】、【回應】、【文本依據】、【闡釋】，靈活運用。每個步驟以【步驟名】標題加分行內容呈現，內容只包含文字和標點
+5. 在「### 點評」中，以段落形式呈現，不使用列點
+6. 在「### 答題步驟及思路」中，描述各部分方向，步驟因題制宜，可能包括【鋪墊】、【回應】、【文本依據】、【闡釋】，靈活運用。每個步驟以【步驟名】標題加分行內容呈現，內容只包含文字和標點，步驟之間隔行
 7. 在「### 改寫範例」中，提供改寫後的答案，使答案更圓足（若答題方向錯誤，則不跟從錯誤方向）
 8. 輸出分為三個部分：### 點評、### 答題步驟及思路、### 改寫範例
-9. 表格中只包含文字和標點，不含『---』等符號
 
 閱讀篇章：${passage}
 題目：${question}
@@ -638,7 +639,17 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         let resultHTML = "<h3>AI點評：</h3><table>";
                         parts.forEach(part => {
                             const [title, ...content] = part.split("\n").filter(line => line.trim());
-                            resultHTML += `<tr><th>${title}</th></tr><tr><td>${content.join("<br>")}</td></tr>`;
+                            if (title === "答題步驟及思路") {
+                                const steps = content.join("\n").split("\n\n");
+                                resultHTML += `<tr><th>${title}</th></tr><tr><td>`;
+                                steps.forEach(step => {
+                                    const [stepTitle, ...stepContent] = step.split("\n");
+                                    resultHTML += `<strong>${stepTitle}</strong><br>${stepContent.join("<br>")}<br><br>`;
+                                });
+                                resultHTML += "</td></tr>";
+                            } else {
+                                resultHTML += `<tr><th>${title}</th></tr><tr><td>${content.join("<br>")}</td></tr>`;
+                            }
                         });
                         resultHTML += "</table>";
                         document.getElementById("commentResult").innerHTML = resultHTML;
