@@ -350,7 +350,7 @@
                 const focus = document.getElementById("customFocus").value.trim();
                 const plot = document.getElementById("customPlot").value.trim();
                 if (!title || !focus || !plot) {
-                    alert("請輸入所有內容");
+                    alert "請輸入所有內容");
                     return;
                 }
                 document.getElementById("topicResult").innerHTML = `
@@ -389,12 +389,14 @@
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
         }
 
-        // 提交寫作內容
+        // 提交寫作內容（修訂後）
         async function submitWritingContent() {
+            console.log("開始執行 submitWritingContent()");
             const category = document.getElementById("category").value;
             const topic = localStorage.getItem("currentTopic");
             if (!topic) {
                 alert("請先設定題目");
+                console.log("未設定題目，中止執行");
                 return;
             }
 
@@ -410,6 +412,7 @@
                     const plot = document.getElementById(plotId).value;
                     if (!focus || !plot) {
                         alert("請填寫所有大綱表格");
+                        console.log(`大綱表格未填寫完整，part: ${part}`);
                         throw new Error("Incomplete outline");
                     }
                     return { part, focus, plot };
@@ -420,6 +423,7 @@
                 content = document.getElementById("writingContent").value;
                 if (!content) {
                     alert("請先輸入寫作內容");
+                    console.log("未輸入寫作內容，中止執行");
                     return;
                 }
             }
@@ -470,9 +474,12 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 教學筆記：${note}`;
             }
 
+            // 確保提示文字立即顯示
+            console.log("設置提示文字：正在生成點評...");
             document.getElementById("commentResult").innerHTML = "正在生成點評...";
 
             try {
+                console.log("開始發送 API 請求...");
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: {
@@ -485,7 +492,13 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     })
                 });
 
+                console.log("收到 API 回應，狀態碼：", response.status);
+                if (!response.ok) {
+                    throw new Error(`API 請求失敗，狀態碼：${response.status}`);
+                }
+
                 const data = await response.json();
+                console.log("API 數據解析完成");
                 const comment = data.choices[0].message.content.trim();
 
                 if (category === "大綱") {
@@ -552,9 +565,11 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     commentHTML += "</table>";
                     document.getElementById("commentResult").innerHTML = commentHTML;
                 }
+                console.log("點評內容已成功顯示");
             } catch (error) {
-                alert("點評生成失敗，請重試");
-                document.getElementById("commentResult").innerHTML = "";
+                console.error("點評生成失敗，錯誤信息：", error.message);
+                alert("點評生成失敗，請檢查網絡或API設置後重試");
+                document.getElementById("commentResult").innerHTML = "生成失敗，請檢查控制台錯誤信息";
             }
         }
 
