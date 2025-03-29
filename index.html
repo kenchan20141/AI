@@ -83,7 +83,7 @@
             padding: 5px 0;
             border-bottom: 1px solid #eee;
         }
-        #outlineStructureArea, #narrativeElementsArea, #readingFunctionArea, #readingInputArea, #writingArea {
+        #outlineStructureArea, #narrativeElementsArea, #readingFunctionArea, #readingInputArea {
             display: none;
         }
     </style>
@@ -152,15 +152,13 @@
             <label for="studentAnswer">學生的答案：</label>
             <textarea id="studentAnswer" rows="5" placeholder="請貼上學生的答案"></textarea>
         </div>
-        <button onclick="submitReading()">提交</button>
-        <div id="commentResult"></div>
     </div>
 
     <!-- 寫作區域 -->
     <div class="box" id="writingArea">
         <div id="outlineTableArea"></div>
         <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
-        <button onclick="submitWritingContent()">提交</button>
+        <button onclick="submitWriting()">提交</button>
         <div id="commentResult"></div>
     </div>
 
@@ -389,6 +387,16 @@
             });
             tableHTML += "</table>";
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
+        }
+
+        // 提交
+        async function submitWriting() {
+            const scope = document.getElementById("scope").value;
+            if (scope === "writing") {
+                submitWritingContent();
+            } else {
+                submitReading();
+            }
         }
 
         // 提交寫作內容
