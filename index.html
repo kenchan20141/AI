@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -81,7 +84,7 @@
             padding: 5px 0;
             border-bottom: 1px solid #eee;
         }
-        #outlineStructureArea, #narrativeElementsArea, #readingFunctionArea, #readingInputArea {
+        #outlineStructureArea, #narrativeElementsArea, #readingFunctionArea, #readingInputArea, #writingArea {
             display: none;
         }
     </style>
@@ -150,7 +153,8 @@
             <label for="studentAnswer">學生的答案：</label>
             <textarea id="studentAnswer" rows="5" placeholder="請貼上學生的答案"></textarea>
         </div>
-        <button onclick="submitReading()">提交</button> <!-- 新增的提交按鈕 -->
+        <button onclick="submitReading()">提交</button>
+        <div id="commentResult"></div>
     </div>
 
     <!-- 寫作區域 -->
@@ -182,7 +186,7 @@
                 commentNote: "必須用繁體字。在「敘事物象」中，學生需要運用豐富的物象來增強故事的生動性和真實感。物象應與題目、取材和故事背景緊密相關，並且能夠有效地表達人物的情感和故事的主題。請確保生成的物象不重複，並且排版清晰易讀。此外，每個物象都必須由兩個字構成。"
             },
             "閱讀": {
-                commentNote: "應以文本中諷刺對象的具體行為作為證據，支持我們所指出的共通點。文本依據必須充實具體，它涉及時、地、人、事、物等元素。闡釋是指解釋文本根據如何證明我們的想法是正確的，亦即所謂「論證」。例如「作者寫到『這就是跑道：繁榮中有一種孤獨』。試綜合全文，說明句中『繁榮』和『孤獨』分別指甚麼？」在我們找出相關的文本依據後，應具體解釋該些內容與「繁榮」及「孤獨」有何關係。所以，闡釋是要用文本依據去論證主題句如何成立。不過你需要因應題目而決定如何運用以上四步，有些題目是「回應＋文本依據＋闡釋」，有些題目則是「鋪墊＋鋪墊＋闡釋」，要求你一步步深入地分析，例如問「為何主角父親會在向村民介紹媳婦時會靦腆」，則可先從父親的性格開始鋪墊，再交代向村民介紹媳婦對父親這種性格的人有甚麼困難，最後則可以分析這種困難為何會令父親覺得尷尬。你需要靈活變通運用以上四個步驟，去解答長問答題。"
+                commentNote: "，應以文本中諷刺對象的具體行為作為證據，支持我們所指出的共通點。文本依據必須充實具體，它涉及時、地、人、事、物等元素。 (4) 闡釋：「闡釋」是指解釋文本根據如何證明我們的想法是正確的，亦即所謂「論證」。例如「作者寫到『這就是跑道：繁榮中有一種孤獨』。試綜合全文，說明句中『繁榮』和『孤獨』分別指甚麼？」在我們找出相關的文本依據後，應具體解釋該些內容與「繁榮」及「孤獨」有何關係。所以，闡釋是要用文本依據去論證主題句如何成立。 不過你需要因應題目而決定如何運用以上四步，有些題目是「回應＋文本依據＋闡釋」，有些題目則是「鋪墊＋鋪墊＋闡釋」，要求你一步步深入地分析，例如問「為何主角父親會在向村民介紹媳婦時會靦腆」，則可先從父親的性格開始鋪墊，再交代向村民介紹媳婦對父親這種性格的人有甚麼困難，最後則可以分析這種困難為何會令父親覺得尷尬。你需要靈活變通運用以上四個步驟，去解答長問答題。"
             }
         };
 
@@ -405,8 +409,8 @@
                 content = parts.map((part, index) => {
                     const focusId = structure + "Focus" + (index + 1);
                     const plotId = structure + "Plot" + (index + 1);
-                    const focus = document.getElementById(focusId).value.trim();
-                    const plot = document.getElementById(plotId).value.trim();
+                    const focus = document.getElementById(focusId).value;
+                    const plot = document.getElementById(plotId).value;
                     if (!focus || !plot) {
                         alert("請填寫所有大綱表格");
                         throw new Error("Incomplete outline");
@@ -416,7 +420,7 @@
             } else if (category === "敘事物象") {
                 content = document.getElementById("narrativeElements").value.trim();
             } else {
-                content = document.getElementById("writingContent").value.trim();
+                content = document.getElementById("writingContent").value;
                 if (!content) {
                     alert("請先輸入寫作內容");
                     return;
@@ -483,8 +487,6 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         messages: [{ role: "user", content: prompt }]
                     })
                 });
-
-                if (!response.ok) throw new Error("API 請求失敗");
 
                 const data = await response.json();
                 const comment = data.choices[0].message.content.trim();
@@ -582,18 +584,16 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             let prompt = "";
             if (readingFunction === "comment") {
                 prompt = `請根據以下內容進行點評，要求：
-1. 參考教學筆記。
-2. 從以下角度評價，聚焦最重要的一至兩點：
-   - 答題方向是否合理（最重要）。
-   - 文本依據是否充實具體（避免直接引用原文，應概括歸納）。
-   - 闡釋推論是否嚴謹、結合文本圍繞觀點解釋，解釋是否具體圓足。
-   - 主題句是否清晰。
-3. 輸出格式：
-   ### 點評
-   （段落形式，不用列點，聚焦一至兩點）
-   ### 改寫範例
-   （若答題方向錯誤，改寫不跟從錯誤方向）
-4. 內容簡潔，排版清晰。
+1. 參考教學筆記
+2. 從以下幾個角度進行評價：
+   - 答題方向是否合理
+   - 文本依據是否充實具體（避免直接引用原文，應概括歸納）
+   - 闡釋推論是否嚴謹、是否結合文本圍繞觀點解釋
+   - 主題句是否清晰
+3. 輸出分為兩個部分：### 點評、### 改寫範例
+4. 點評時，聚焦最重要的一至兩點
+5. 若學生的答題方向錯誤，改寫範例不要跟從錯誤方向
+6. 點評不應使用列點形式，應以段落呈現
 
 閱讀篇章：${readingText}
 題目：${question}
@@ -601,18 +601,14 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 教學筆記：${note}`;
             } else {
                 prompt = `請根據以下內容生成答題指引，要求：
-1. 參考教學筆記。
-2. 生成「答題步驟及思路」，格式如下，根據題目靈活調整步驟順序和數量（不一定包含所有步驟，可重複某些步驟）：
-   【鋪墊】：提供粗略背景或切入角度，不透露答案。
-   【回應】：簡要回應題目要求的方向，不給具體內容。
-   【文本依據】：提示應從文本中尋找的依據範圍，不引用具體內容。
-   【闡釋】：提示如何用依據支持觀點，不提供詳細分析。
-3. 只生成與「答題步驟及思路」相關的內容，保持簡潔，排版整齊。
-4. 生成「答題詞匯」，要求：
-   - 提供15個由兩個字構成的詞匯。
-   - 詞匯與題目和篇章相關，供學生參考使用。
-   - 格式：每詞一行，無多餘內容。
-5. 確保內容不空白，排版清晰。
+1. 參考教學筆記
+2. 生成「答題步驟及思路」，格式如下：
+   【鋪墊】：XXXX
+   【回應】：XXXX
+   【文本依據】：XXXX
+   【闡釋】：XXXX
+3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯
+4. 確保排版整齊
 
 閱讀篇章：${readingText}
 題目：${question}
@@ -634,14 +630,12 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     })
                 });
 
-                if (!response.ok) throw new Error("API 請求失敗");
-
                 const data = await response.json();
                 const result = data.choices[0].message.content.trim();
 
                 if (readingFunction === "comment") {
                     const parts = result.split("###").map(part => part.trim()).filter(part => part);
-                    let resultHTML = "<h3>AI點評</h3><table>";
+                    let resultHTML = "<h3>AI點評：</h3><table>";
                     parts.forEach(part => {
                         const [title, ...content] = part.split("\n");
                         resultHTML += `<tr><th>${title}</th></tr><tr><td>${content.join("<br>")}</td></tr>`;
@@ -649,25 +643,21 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     resultHTML += "</table>";
                     document.getElementById("commentResult").innerHTML = resultHTML;
                 } else {
-                    const [stepsSection, vocabSection] = result.includes("答題詞匯") ? result.split("答題詞匯") : [result, ""];
-                    const stepsLines = stepsSection.split("\n").map(line => line.trim()).filter(line => line);
-                    let stepsHTML = "<h3>答題步驟及思路</h3><pre>";
-                    stepsLines.forEach(line => {
-                        stepsHTML += `${line}\n`;
+                    const [steps, vocab] = result.split("答題詞匯");
+                    const stepsParts = steps.split("\n").map(line => line.trim()).filter(line => line);
+                    let stepsHTML = "<h3>答題步驟及思路：</h3><pre>";
+                    stepsParts.forEach(line => {
+                        stepsHTML += line + "\n";
                     });
                     stepsHTML += "</pre>";
-
-                    const vocabLines = vocabSection ? vocabSection.split("\n").map(line => line.trim()).filter(line => line) : [];
-                    let vocabHTML = "<h3>答題詞匯</h3><table><tr><th>詞匯</th></tr>";
-                    const validVocab = vocabLines.filter(word => word.length === 2).slice(0, 15);
-                    if (validVocab.length < 15) {
-                        console.warn("詞匯數量不足15個");
-                    }
-                    validVocab.forEach(word => {
-                        vocabHTML += `<tr><td>${word}</td></tr>`;
+                    const vocabList = vocab.split("\n").map(item => item.trim()).filter(item => item);
+                    let vocabHTML = "<h3>答題詞匯：</h3><ul>";
+                    vocabList.forEach(word => {
+                        if (word.length === 2) {
+                            vocabHTML += `<li>${word}</li>`;
+                        }
                     });
-                    vocabHTML += "</table>";
-
+                    vocabHTML += "</ul>";
                     document.getElementById("commentResult").innerHTML = stepsHTML + vocabHTML;
                 }
             } catch (error) {
