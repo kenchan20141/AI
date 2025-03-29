@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -83,7 +81,7 @@
             padding: 5px 0;
             border-bottom: 1px solid #eee;
         }
-        #outlineStructureArea, #narrativeElementsArea, #readingFunctionArea, #readingInputArea {
+        #outlineStructureArea, #narrativeElementsArea, #readingFunctionArea, #readingInputArea, #writingArea {
             display: none;
         }
     </style>
@@ -151,15 +149,16 @@
         <div id="studentAnswerArea">
             <label for="studentAnswer">學生的答案：</label>
             <textarea id="studentAnswer" rows="5" placeholder="請貼上學生的答案"></textarea>
-            <button onclick="submitReading()">提交</button> <!-- 新增提交按鈕 -->
         </div>
+        <button onclick="submitReading()">提交</button>
+        <div id="commentResult"></div>
     </div>
 
     <!-- 寫作區域 -->
     <div class="box" id="writingArea">
         <div id="outlineTableArea"></div>
         <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
-        <button onclick="submitWriting()">提交</button>
+        <button onclick="submitWritingContent()">提交</button>
         <div id="commentResult"></div>
     </div>
 
@@ -390,16 +389,6 @@
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
         }
 
-        // 提交
-        async function submitWriting() {
-            const scope = document.getElementById("scope").value;
-            if (scope === "writing") {
-                submitWritingContent();
-            } else {
-                submitReading();
-            }
-        }
-
         // 提交寫作內容
         async function submitWritingContent() {
             const category = document.getElementById("category").value;
@@ -610,17 +599,24 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             } else {
                 prompt = `請根據以下內容生成答題指引，要求：
 1. 參考教學筆記
-2. 生成「答題步驟及思路」，格式如下：
-   【鋪墊】：XXXX
-   【回應】：XXXX
-   【文本依據】：XXXX
-   【闡釋】：XXXX
-3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯
-4. 確保排版整齊
+2. 生成「答題步驟及思路」，使用【鋪墊】、【回應】、【文本依據】、【闡釋】等標籤，並根據題目靈活調整順序和內容。內容應為指導性建議，而非具體答案。
+3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯，供學生參考。確保詞匯不重複且與題目相關。
+4. 確保內容不空白，排版整齊。
 
 閱讀篇章：${readingText}
 題目：${question}
-教學筆記：${note}`;
+教學筆記：${note}
+
+輸出格式：
+### 答題步驟及思路
+【標籤】：指導性建議
+【標籤】：指導性建議
+...
+### 答題詞匯
+詞1
+詞2
+...
+詞15`;
             }
 
             document.getElementById("commentResult").innerHTML = "正在生成...";
@@ -651,21 +647,23 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     resultHTML += "</table>";
                     document.getElementById("commentResult").innerHTML = resultHTML;
                 } else {
-                    const [steps, vocab] = result.split("答題詞匯");
-                    const stepsParts = steps.split("\n").map(line => line.trim()).filter(line => line);
-                    let stepsHTML = "<h3>答題步驟及思路：</h3><pre>";
-                    stepsParts.forEach(line => {
-                        stepsHTML += line + "\n";
-                    });
-                    stepsHTML += "</pre>";
-                    const vocabList = vocab.split("\n").map(item => item.trim()).filter(item => item);
-                    let vocabHTML = "<h3>答題詞匯：</h3><ul>";
-                    vocabList.forEach(word => {
-                        if (word.length === 2) {
-                            vocabHTML += `<li>${word}</li>`;
+                    const parts = result.split("###").map(part => part.trim()).filter(part => part);
+                    let stepsHTML = "";
+                    let vocabHTML = "";
+                    parts.forEach(part => {
+                        if (part.startsWith("答題步驟及思路")) {
+                            const steps = part.replace("答題步驟及思路", "").trim();
+                            stepsHTML = "<h3>答題步驟及思路：</h3><pre>" + steps + "</pre>";
+                        } else if (part.startsWith("答題詞匯")) {
+                            const vocabList = part.replace("答題詞匯", "").trim().split("\n").map(item => item.trim()).filter(item => item);
+                            vocabHTML = "<h3>答題詞匯：</h3><table><tr>";
+                            vocabList.forEach((word, index) => {
+                                if (index % 5 === 0 && index !== 0) vocabHTML += "</tr><tr>";
+                                vocabHTML += `<td>${word}</td>`;
+                            });
+                            vocabHTML += "</tr></table>";
                         }
                     });
-                    vocabHTML += "</ul>";
                     document.getElementById("commentResult").innerHTML = stepsHTML + vocabHTML;
                 }
             } catch (error) {
