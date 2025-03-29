@@ -333,7 +333,7 @@
                     localStorage.setItem("currentPlot", plot);
                 } else {
                     document.getElementById("topicResult").innerHTML = 
-                        "今日題目：<strong>${topic}</strong>";
+                        `今日題目：<strong>${topic}</strong>`;
                     localStorage.setItem("currentTopic", topic);
                 }
             } catch (error) {
@@ -370,7 +370,7 @@
                     return;
                 }
                 document.getElementById("topicResult").innerHTML = 
-                    "自訂題目：<strong>${customTopic}</strong>";
+                    `自訂題目：<strong>${customTopic}</strong>`;
                 localStorage.setItem("currentTopic", customTopic);
             }
         }
@@ -406,8 +406,8 @@
                 content = parts.map((part, index) => {
                     const focusId = structure + "Focus" + (index + 1);
                     const plotId = structure + "Plot" + (index + 1);
-                    const focus = document.getElementById(focusId).value;
-                    const plot = document.getElementById(plotId).value;
+                    const focus = document.getElementById(focusId).value.trim();
+                    const plot = document.getElementById(plotId).value.trim();
                     if (!focus || !plot) {
                         alert("請填寫所有大綱表格");
                         throw new Error("Incomplete outline");
@@ -417,7 +417,7 @@
             } else if (category === "敘事物象") {
                 content = document.getElementById("narrativeElements").value.trim();
             } else {
-                content = document.getElementById("writingContent").value;
+                content = document.getElementById("writingContent").value.trim();
                 if (!content) {
                     alert("請先輸入寫作內容");
                     return;
@@ -628,6 +628,10 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         messages: [{ role: "user", content: prompt }]
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error("API請求失敗");
+                }
 
                 const data = await response.json();
                 const result = data.choices[0].message.content.trim();
