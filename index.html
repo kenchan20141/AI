@@ -350,7 +350,7 @@
                 const focus = document.getElementById("customFocus").value.trim();
                 const plot = document.getElementById("customPlot").value.trim();
                 if (!title || !focus || !plot) {
-                    alert "請輸入所有內容");
+                    alert("請輸入所有內容");
                     return;
                 }
                 document.getElementById("topicResult").innerHTML = `
@@ -389,14 +389,12 @@
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
         }
 
-        // 提交寫作內容（修訂後）
+        // 提交寫作內容
         async function submitWritingContent() {
-            console.log("開始執行 submitWritingContent()");
             const category = document.getElementById("category").value;
             const topic = localStorage.getItem("currentTopic");
             if (!topic) {
                 alert("請先設定題目");
-                console.log("未設定題目，中止執行");
                 return;
             }
 
@@ -412,7 +410,6 @@
                     const plot = document.getElementById(plotId).value;
                     if (!focus || !plot) {
                         alert("請填寫所有大綱表格");
-                        console.log(`大綱表格未填寫完整，part: ${part}`);
                         throw new Error("Incomplete outline");
                     }
                     return { part, focus, plot };
@@ -423,7 +420,6 @@
                 content = document.getElementById("writingContent").value;
                 if (!content) {
                     alert("請先輸入寫作內容");
-                    console.log("未輸入寫作內容，中止執行");
                     return;
                 }
             }
@@ -474,12 +470,9 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 教學筆記：${note}`;
             }
 
-            // 確保提示文字立即顯示
-            console.log("設置提示文字：正在生成點評...");
             document.getElementById("commentResult").innerHTML = "正在生成點評...";
 
             try {
-                console.log("開始發送 API 請求...");
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: {
@@ -492,13 +485,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     })
                 });
 
-                console.log("收到 API 回應，狀態碼：", response.status);
-                if (!response.ok) {
-                    throw new Error(`API 請求失敗，狀態碼：${response.status}`);
-                }
-
                 const data = await response.json();
-                console.log("API 數據解析完成");
                 const comment = data.choices[0].message.content.trim();
 
                 if (category === "大綱") {
@@ -565,11 +552,9 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     commentHTML += "</table>";
                     document.getElementById("commentResult").innerHTML = commentHTML;
                 }
-                console.log("點評內容已成功顯示");
             } catch (error) {
-                console.error("點評生成失敗，錯誤信息：", error.message);
-                alert("點評生成失敗，請檢查網絡或API設置後重試");
-                document.getElementById("commentResult").innerHTML = "生成失敗，請檢查控制台錯誤信息";
+                alert("點評生成失敗，請重試");
+                document.getElementById("commentResult").innerHTML = "";
             }
         }
 
@@ -603,9 +588,9 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
    - 闡釋推論是否嚴謹、是否結合文本圍繞觀點解釋
    - 主題句是否清晰
 3. 輸出分為兩個部分：### 點評、### 改寫範例
-4. 點評時，聚焦最重要的一至兩點
+4. 點評時，聚焦最重要的一至兩點，並以段落形式呈現
 5. 若學生的答題方向錯誤，改寫範例不要跟從錯誤方向
-6. 點評不應使用列點形式，應以段落呈現
+6. 改寫範例應基於正確的答題方向
 
 閱讀篇章：${readingText}
 題目：${question}
@@ -614,24 +599,17 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             } else {
                 prompt = `請根據以下內容生成答題指引，要求：
 1. 參考教學筆記
-2. 生成「答題步驟及思路」，使用【鋪墊】、【回應】、【文本依據】、【闡釋】等標籤，並根據題目靈活調整順序和內容。內容應為指導性建議，而非具體答案。
-3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯，供學生參考。確保詞匯不重複且與題目相關。
-4. 確保內容不空白，排版整齊。
+2. 生成「答題步驟及思路」，提供粗略的方向和角度，不要具體分析或透露答案
+3. 使用【鋪墊】、【回應】、【文本依據】、【闡釋】作為步驟標題，根據題目靈活調整步驟順序和數量（例如，有些題目可能只需【回應】【文本依據】【闡釋】，有些可能需要重複步驟從多角度分析）
+4. 每個步驟標題後跟簡短內容，格式如下：
+   【步驟名】：XXXX
+5. 生成「答題詞匯」，提供15個由兩個字構成的詞匯，確保不空白
+6. 僅生成「答題步驟及思路」和「答題詞匯」，避免無關內容
+7. 確保排版整齊
 
 閱讀篇章：${readingText}
 題目：${question}
-教學筆記：${note}
-
-輸出格式：
-### 答題步驟及思路
-【標籤】：指導性建議
-【標籤】：指導性建議
-...
-### 答題詞匯
-詞1
-詞2
-...
-詞15`;
+教學筆記：${note}`;
             }
 
             document.getElementById("commentResult").innerHTML = "正在生成...";
@@ -662,23 +640,37 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     resultHTML += "</table>";
                     document.getElementById("commentResult").innerHTML = resultHTML;
                 } else {
-                    const parts = result.split("###").map(part => part.trim()).filter(part => part);
-                    let stepsHTML = "";
-                    let vocabHTML = "";
-                    parts.forEach(part => {
-                        if (part.startsWith("答題步驟及思路")) {
-                            const steps = part.replace("答題步驟及思路", "").trim();
-                            stepsHTML = "<h3>答題步驟及思路：</h3><pre>" + steps + "</pre>";
-                        } else if (part.startsWith("答題詞匯")) {
-                            const vocabList = part.replace("答題詞匯", "").trim().split("\n").map(item => item.trim()).filter(item => item);
-                            vocabHTML = "<h3>答題詞匯：</h3><table><tr>";
-                            vocabList.forEach((word, index) => {
-                                if (index % 5 === 0 && index !== 0) vocabHTML += "</tr><tr>";
-                                vocabHTML += `<td>${word}</td>`;
-                            });
-                            vocabHTML += "</tr></table>";
+                    const [stepsSection, vocabSection] = result.split("答題詞匯");
+                    const stepsLines = stepsSection.split("\n").map(line => line.trim()).filter(line => line);
+                    let stepsHTML = "<h3>答題步驟及思路：</h3><pre>";
+                    stepsLines.forEach(line => {
+                        if (line.startsWith("【") && line.endsWith("】")) {
+                            stepsHTML += `<strong>${line}</strong>\n`;
+                        } else {
+                            stepsHTML += `${line}\n`;
                         }
                     });
+                    stepsHTML += "</pre>";
+
+                    const vocabList = vocabSection ? vocabSection.split("\n").map(item => item.trim()).filter(item => item.length === 2) : [];
+                    let vocabHTML = "<h3>答題詞匯：</h3><table><tr>";
+                    const filteredVocab = vocabList.slice(0, 15);
+                    filteredVocab.forEach((word, index) => {
+                        if (index % 5 === 0 && index !== 0) {
+                            vocabHTML += "</tr><tr>";
+                        }
+                        vocabHTML += `<td>${word}</td>`;
+                    });
+                    while (filteredVocab.length < 15) {
+                        filteredVocab.push("待補");
+                        const index = filteredVocab.length - 1;
+                        if (index % 5 === 0 && index !== 0) {
+                            vocabHTML += "</tr><tr>";
+                        }
+                        vocabHTML += `<td>待補</td>`;
+                    }
+                    vocabHTML += "</tr></table>";
+
                     document.getElementById("commentResult").innerHTML = stepsHTML + vocabHTML;
                 }
             } catch (error) {
