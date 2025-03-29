@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -78,6 +76,7 @@
         #commentResult ul {
             list-style-type: none;
             padding: 0;
+            columns: 3;
         }
         #commentResult li {
             padding: 5px 0;
@@ -152,6 +151,7 @@
             <label for="studentAnswer">學生的答案：</label>
             <textarea id="studentAnswer" rows="5" placeholder="請貼上學生的答案"></textarea>
         </div>
+        <button onclick="submitReading()">提交</button>
     </div>
 
     <!-- 寫作區域 -->
@@ -183,7 +183,7 @@
                 commentNote: "必須用繁體字。在「敘事物象」中，學生需要運用豐富的物象來增強故事的生動性和真實感。物象應與題目、取材和故事背景緊密相關，並且能夠有效地表達人物的情感和故事的主題。請確保生成的物象不重複，並且排版清晰易讀。此外，每個物象都必須由兩個字構成。"
             },
             "閱讀": {
-                commentNote: "，應以文本中諷刺對象的具體行為作為證據，支持我們所指出的共通點。文本依據必須充實具體，它涉及時、地、人、事、物等元素。 (4) 闡釋：「闡釋」是指解釋文本根據如何證明我們的想法是正確的，亦即所謂「論證」。例如「作者寫到『這就是跑道：繁榮中有一種孤獨』。試綜合全文，說明句中『繁榮』和『孤獨』分別指甚麼？」在我們找出相關的文本依據後，應具體解釋該些內容與「繁榮」及「孤獨」有何關係。所以，闡釋是要用文本依據去論證主題句如何成立。 不過你需要因應題目而決定如何運用以上四步，有些題目是「回應＋文本依據＋闡釋」，有些題目則是「鋪墊＋鋪墊＋闡釋」，要求你一步步深入地分析，例如問「為何主角父親會在向村民介紹媳婦時會靦腆」，則可先從父親的性格開始鋪墊，再交代向村民介紹媳婦對父親這種性格的人有甚麼困難，最後則可以分析這種困難為何會令父親覺得尷尬。你需要靈活變通運用以上四個步驟，去解答長問答題。"
+                commentNote: "應以文本中諷刺對象的具體行為作為證據，支持我們所指出的共通點。文本依據必須充實具體，它涉及時、地、人、事、物等元素。(4) 闡釋：「闡釋」是指解釋文本根據如何證明我們的想法是正確的，亦即所謂「論證」。例如「作者寫到『這就是跑道：繁榮中有一種孤獨』。試綜合全文，說明句中『繁榮』和『孤獨』分別指甚麼？」在我們找出相關的文本依據後，應具體解釋該些內容與「繁榮」及「孤獨」有何關係。所以，闡釋是要用文本依據去論證主題句如何成立。不過你需要因應題目而決定如何運用以上四步，有些題目是「回應＋文本依據＋闡釋」，有些題目則是「鋪墊＋鋪墊＋闡釋」，要求你一步步深入地分析，例如問「為何主角父親會在向村民介紹媳婦時會靦腆」，則可先從父親的性格開始鋪墊，再交代向村民介紹媳婦對父親這種性格的人有甚麼困難，最後則可以分析這種困難為何會令父親覺得尷尬。你需要靈活變通運用以上四個步驟，去解答長問答題。"
             }
         };
 
@@ -389,18 +389,8 @@
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
         }
 
-        // 提交
+        // 提交寫作
         async function submitWriting() {
-            const scope = document.getElementById("scope").value;
-            if (scope === "writing") {
-                submitWritingContent();
-            } else {
-                submitReading();
-            }
-        }
-
-        // 提交寫作內容
-        async function submitWritingContent() {
             const category = document.getElementById("category").value;
             const topic = localStorage.getItem("currentTopic");
             if (!topic) {
@@ -601,6 +591,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 4. 點評時，聚焦最重要的一至兩點
 5. 若學生的答題方向錯誤，改寫範例不要跟從錯誤方向
 6. 點評不應使用列點形式，應以段落呈現
+7. 內容需簡潔，避免冗長
 
 閱讀篇章：${readingText}
 題目：${question}
@@ -609,13 +600,16 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             } else {
                 prompt = `請根據以下內容生成答題指引，要求：
 1. 參考教學筆記
-2. 生成「答題步驟及思路」，格式如下：
-   【鋪墊】：XXXX
-   【回應】：XXXX
-   【文本依據】：XXXX
-   【闡釋】：XXXX
-3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯
-4. 確保排版整齊
+2. 生成「答題步驟及思路」，使用以下步驟：【鋪墊】、【回應】、【文本依據】、【闡釋】
+   - 根據題目靈活選擇步驟，不必每個步驟都出現
+   - 步驟順序可調整，因題制宜
+   - 每個步驟作為標題，內容分行處理，提供粗略方向和角度，不透露具體答案
+   - 格式如下：
+     【步驟名稱】：
+     - XXXX
+     - XXXX
+3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯，與題目相關
+4. 排版整齊，不生成多餘內容
 
 閱讀篇章：${readingText}
 題目：${question}
@@ -650,21 +644,31 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     resultHTML += "</table>";
                     document.getElementById("commentResult").innerHTML = resultHTML;
                 } else {
-                    const [steps, vocab] = result.split("答題詞匯");
-                    const stepsParts = steps.split("\n").map(line => line.trim()).filter(line => line);
-                    let stepsHTML = "<h3>答題步驟及思路：</h3><pre>";
-                    stepsParts.forEach(line => {
-                        stepsHTML += line + "\n";
-                    });
-                    stepsHTML += "</pre>";
-                    const vocabList = vocab.split("\n").map(item => item.trim()).filter(item => item);
-                    let vocabHTML = "<h3>答題詞匯：</h3><ul>";
-                    vocabList.forEach(word => {
-                        if (word.length === 2) {
-                            vocabHTML += `<li>${word}</li>`;
+                    const [stepsSection, vocabSection] = result.includes("答題詞匯") ? result.split("答題詞匯") : [result, ""];
+                    const stepsLines = stepsSection.split("\n").map(line => line.trim()).filter(line => line);
+                    let stepsHTML = "<h3>答題步驟及思路：</h3><div>";
+                    let currentStep = "";
+                    stepsLines.forEach(line => {
+                        if (line.startsWith("【") && line.endsWith("】")) {
+                            if (currentStep) stepsHTML += "</ul>";
+                            currentStep = line;
+                            stepsHTML += `<h4>${currentStep}</h4><ul>`;
+                        } else if (line.startsWith("- ")) {
+                            stepsHTML += `<li>${line.substring(2)}</li>`;
                         }
                     });
-                    vocabHTML += "</ul>";
+                    if (currentStep) stepsHTML += "</ul>";
+                    stepsHTML += "</div>";
+
+                    let vocabHTML = "<h3>答題詞匯：</h3><table><tr>";
+                    const vocabItems = vocabSection ? vocabSection.split("\n").map(item => item.trim()).filter(item => item && item.length === 2) : [];
+                    for (let i = 0; i < 15; i++) {
+                        const word = vocabItems[i] || "無";
+                vocabHTML += `<td>${word}</td>`;
+                        if ((i + 1) % 5 === 0) vocabHTML += "</tr><tr>";
+                    }
+                    vocabHTML += "</tr></table>";
+
                     document.getElementById("commentResult").innerHTML = stepsHTML + vocabHTML;
                 }
             } catch (error) {
