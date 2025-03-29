@@ -195,6 +195,8 @@
             const narrativeElementsArea = document.getElementById("narrativeElementsArea");
             const readingInputArea = document.getElementById("readingInputArea");
             const writingArea = document.getElementById("writingArea");
+            const outlineTableArea = document.getElementById("outlineTableArea");
+            const writingContent = document.getElementById("writingContent");
             const commentResult = document.getElementById("commentResult");
 
             if (category === "寫作") {
@@ -211,6 +213,8 @@
                 narrativeElementsArea.style.display = "none";
                 readingInputArea.style.display = "block";
                 writingArea.style.display = "block";
+                outlineTableArea.innerHTML = ""; // 隱藏大綱表格
+                writingContent.style.display = "none"; // 隱藏片段描寫輸入框
                 toggleReadingFunction();
             }
             commentResult.innerHTML = "";
