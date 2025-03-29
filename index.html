@@ -81,10 +81,7 @@
             padding: 5px 0;
             border-bottom: 1px solid #eee;
         }
-        #outlineStructureArea {
-            margin-top: 10px;
-        }
-        #narrativeElementsArea {
+        #outlineStructureArea, #narrativeElementsArea, #readingFunctionArea, #readingInputArea {
             display: none;
         }
     </style>
@@ -94,23 +91,37 @@
 
     <!-- 範疇選擇 -->
     <div class="box">
-        <label for="category">選擇練習範疇：</label>
-        <select id="category" onchange="toggleCategory()">
-            <option value="片段描寫">片段描寫</option>
-            <option value="大綱">大綱</option>
-            <option value="敘事物象">敘事物象</option>
+        <label for="scope">選擇練習範疇：</label>
+        <select id="scope" onchange="toggleScope()">
+            <option value="writing">寫作</option>
+            <option value="reading">閱讀</option>
         </select>
-        <div id="outlineStructureArea" style="display: none;">
-            <label for="structure">選擇大綱結構：</label>
-            <select id="structure" onchange="generateOutlineTable()">
-                <option value="fourPart">起承轉合</option>
-                <option value="threeLine">三線</option>
+        <div id="writingCategoryArea">
+            <label for="category">選擇寫作類型：</label>
+            <select id="category" onchange="toggleCategory()">
+                <option value="片段描寫">片段描寫</option>
+                <option value="大綱">大綱</option>
+                <option value="敘事物象">敘事物象</option>
+            </select>
+            <div id="outlineStructureArea">
+                <label for="structure">選擇大綱結構：</label>
+                <select id="structure" onchange="generateOutlineTable()">
+                    <option value="fourPart">起承轉合</option>
+                    <option value="threeLine">三線</option>
+                </select>
+            </div>
+        </div>
+        <div id="readingFunctionArea">
+            <label for="readingFunction">選擇閱讀功能：</label>
+            <select id="readingFunction" onchange="toggleReadingFunction()">
+                <option value="comment">點評</option>
+                <option value="guide">指引</option>
             </select>
         </div>
     </div>
 
     <!-- 題目選擇 -->
-    <div class="box">
+    <div class="box" id="topicSelectionArea">
         <label for="topicOption">選擇題目方式：</label>
         <select id="topicOption" onchange="toggleTopicInput()">
             <option value="generate">生成題目</option>
@@ -119,9 +130,7 @@
         <div id="generateTopicArea">
             <button onclick="generateTopic()">生成寫作題目</button>
         </div>
-        <div id="customTopicArea" style="display: none;">
-            <!-- 內容將動態生成 -->
-        </div>
+        <div id="customTopicArea" style="display: none;"></div>
         <div id="topicResult"></div>
     </div>
 
@@ -131,8 +140,20 @@
         <textarea id="narrativeElements" rows="5" placeholder="例如：故事背景、人物設定、取材來源等..."></textarea>
     </div>
 
+    <!-- 閱讀輸入 -->
+    <div class="box" id="readingInputArea">
+        <label for="readingText">閱讀篇章：</label>
+        <textarea id="readingText" rows="5" placeholder="請貼上閱讀篇章"></textarea>
+        <label for="question">題目：</label>
+        <textarea id="question" rows="3" placeholder="請貼上題目"></textarea>
+        <div id="studentAnswerArea">
+            <label for="studentAnswer">學生的答案：</label>
+            <textarea id="studentAnswer" rows="5" placeholder="請貼上學生的答案"></textarea>
+        </div>
+    </div>
+
     <!-- 寫作區域 -->
-    <div class="box">
+    <div class="box" id="writingArea">
         <div id="outlineTableArea"></div>
         <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
         <button onclick="submitWriting()">提交</button>
@@ -158,17 +179,49 @@
             "敘事物象": {
                 topicPrompt: "請生成一道適合中學生練習敘事物象的題目，要求：1.必須包含兩個部份,一是片段要交代甚麼情節、敘事重點是甚麼,二是要強調的人物感情。2.只生成一道題目，20字以內 3.加快生成速度 4.除了題目之外，不要生成其他任何內容 5.題目要多變化",
                 commentNote: "必須用繁體字。在「敘事物象」中，學生需要運用豐富的物象來增強故事的生動性和真實感。物象應與題目、取材和故事背景緊密相關，並且能夠有效地表達人物的情感和故事的主題。請確保生成的物象不重複，並且排版清晰易讀。此外，每個物象都必須由兩個字構成。"
+            },
+            "閱讀": {
+                commentNote: "，應以文本中諷刺對象的具體行為作為證據，支持我們所指出的共通點。文本依據必須充實具體，它涉及時、地、人、事、物等元素。 (4) 闡釋：「闡釋」是指解釋文本根據如何證明我們的想法是正確的，亦即所謂「論證」。例如「作者寫到『這就是跑道：繁榮中有一種孤獨』。試綜合全文，說明句中『繁榮』和『孤獨』分別指甚麼？」在我們找出相關的文本依據後，應具體解釋該些內容與「繁榮」及「孤獨」有何關係。所以，闡釋是要用文本依據去論證主題句如何成立。 不過你需要因應題目而決定如何運用以上四步，有些題目是「回應＋文本依據＋闡釋」，有些題目則是「鋪墊＋鋪墊＋闡釋」，要求你一步步深入地分析，例如問「為何主角父親會在向村民介紹媳婦時會靦腆」，則可先從父親的性格開始鋪墊，再交代向村民介紹媳婦對父親這種性格的人有甚麼困難，最後則可以分析這種困難為何會令父親覺得尷尬。你需要靈活變通運用以上四個步驟，去解答長問答題。"
             }
         };
 
         // 切換範疇
+        function toggleScope() {
+            const scope = document.getElementById("scope").value;
+            const writingCategoryArea = document.getElementById("writingCategoryArea");
+            const readingFunctionArea = document.getElementById("readingFunctionArea");
+            const topicSelectionArea = document.getElementById("topicSelectionArea");
+            const narrativeElementsArea = document.getElementById("narrativeElementsArea");
+            const readingInputArea = document.getElementById("readingInputArea");
+            const writingArea = document.getElementById("writingArea");
+            const commentResult = document.getElementById("commentResult");
+
+            if (scope === "writing") {
+                writingCategoryArea.style.display = "block";
+                readingFunctionArea.style.display = "none";
+                topicSelectionArea.style.display = "block";
+                readingInputArea.style.display = "none";
+                writingArea.style.display = "block";
+                toggleCategory();
+            } else { // reading
+                writingCategoryArea.style.display = "none";
+                readingFunctionArea.style.display = "block";
+                topicSelectionArea.style.display = "none";
+                narrativeElementsArea.style.display = "none";
+                readingInputArea.style.display = "block";
+                writingArea.style.display = "none";
+                toggleReadingFunction();
+            }
+            commentResult.innerHTML = "";
+        }
+
+        // 切換寫作類型
         function toggleCategory() {
             const category = document.getElementById("category").value;
             const outlineStructureArea = document.getElementById("outlineStructureArea");
             const narrativeElementsArea = document.getElementById("narrativeElementsArea");
             const writingContent = document.getElementById("writingContent");
             const outlineTableArea = document.getElementById("outlineTableArea");
-            const commentResult = document.getElementById("commentResult");
 
             if (category === "大綱") {
                 outlineStructureArea.style.display = "block";
@@ -186,8 +239,18 @@
                 writingContent.style.display = "block";
                 outlineTableArea.innerHTML = "";
             }
-            commentResult.innerHTML = "";
             toggleTopicInput();
+        }
+
+        // 切換閱讀功能
+        function toggleReadingFunction() {
+            const readingFunction = document.getElementById("readingFunction").value;
+            const studentAnswerArea = document.getElementById("studentAnswerArea");
+            if (readingFunction === "comment") {
+                studentAnswerArea.style.display = "block";
+            } else {
+                studentAnswerArea.style.display = "none";
+            }
         }
 
         // 切換題目輸入方式
@@ -324,8 +387,18 @@
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
         }
 
-        // 提交作文獲取點評
+        // 提交
         async function submitWriting() {
+            const scope = document.getElementById("scope").value;
+            if (scope === "writing") {
+                submitWritingContent();
+            } else {
+                submitReading();
+            }
+        }
+
+        // 提交寫作內容
+        async function submitWritingContent() {
             const category = document.getElementById("category").value;
             const topic = localStorage.getItem("currentTopic");
             if (!topic) {
@@ -493,10 +566,114 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             }
         }
 
+        // 提交閱讀
+        async function submitReading() {
+            const readingFunction = document.getElementById("readingFunction").value;
+            const readingText = document.getElementById("readingText").value.trim();
+            const question = document.getElementById("question").value.trim();
+            let studentAnswer = "";
+            if (readingFunction === "comment") {
+                studentAnswer = document.getElementById("studentAnswer").value.trim();
+                if (!studentAnswer) {
+                    alert("請輸入學生的答案");
+                    return;
+                }
+            }
+            if (!readingText || !question) {
+                alert("請輸入閱讀篇章和題目");
+                return;
+            }
+
+            const note = categories["閱讀"].commentNote;
+
+            let prompt = "";
+            if (readingFunction === "comment") {
+                prompt = `請根據以下內容進行點評，要求：
+1. 參考教學筆記
+2. 從以下幾個角度進行評價：
+   - 答題方向是否合理
+   - 文本依據是否充實具體（避免直接引用原文，應概括歸納）
+   - 闡釋推論是否嚴謹、是否結合文本圍繞觀點解釋
+   - 主題句是否清晰
+3. 輸出分為兩個部分：### 點評、### 改寫範例
+4. 點評時，聚焦最重要的一至兩點
+5. 若學生的答題方向錯誤，改寫範例不要跟從錯誤方向
+6. 點評不應使用列點形式，應以段落呈現
+
+閱讀篇章：${readingText}
+題目：${question}
+學生的答案：${studentAnswer}
+教學筆記：${note}`;
+            } else {
+                prompt = `請根據以下內容生成答題指引，要求：
+1. 參考教學筆記
+2. 生成「答題步驟及思路」，格式如下：
+   【鋪墊】：XXXX
+   【回應】：XXXX
+   【文本依據】：XXXX
+   【闡釋】：XXXX
+3. 生成「答題詞匯」，提供15個由兩個字構成的詞匯
+4. 確保排版整齊
+
+閱讀篇章：${readingText}
+題目：${question}
+教學筆記：${note}`;
+            }
+
+            document.getElementById("commentResult").innerHTML = "正在生成...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                const data = await response.json();
+                const result = data.choices[0].message.content.trim();
+
+                if (readingFunction === "comment") {
+                    const parts = result.split("###").map(part => part.trim()).filter(part => part);
+                    let resultHTML = "<h3>AI點評：</h3><table>";
+                    parts.forEach(part => {
+                        const [title, ...content] = part.split("\n");
+                        resultHTML += `<tr><th>${title}</th></tr><tr><td>${content.join("<br>")}</td></tr>`;
+                    });
+                    resultHTML += "</table>";
+                    document.getElementById("commentResult").innerHTML = resultHTML;
+                } else {
+                    const [steps, vocab] = result.split("答題詞匯");
+                    const stepsParts = steps.split("\n").map(line => line.trim()).filter(line => line);
+                    let stepsHTML = "<h3>答題步驟及思路：</h3><pre>";
+                    stepsParts.forEach(line => {
+                        stepsHTML += line + "\n";
+                    });
+                    stepsHTML += "</pre>";
+                    const vocabList = vocab.split("\n").map(item => item.trim()).filter(item => item);
+                    let vocabHTML = "<h3>答題詞匯：</h3><ul>";
+                    vocabList.forEach(word => {
+                        if (word.length === 2) {
+                            vocabHTML += `<li>${word}</li>`;
+                        }
+                    });
+                    vocabHTML += "</ul>";
+                    document.getElementById("commentResult").innerHTML = stepsHTML + vocabHTML;
+                }
+            } catch (error) {
+                alert("生成失敗，請重試");
+                document.getElementById("commentResult").innerHTML = "";
+            }
+        }
+
         // 頁面加載時初始化
         window.onload = function() {
-            toggleCategory();
-            toggleTopicInput();
+            toggleScope();
         };
     </script>
 </body>
