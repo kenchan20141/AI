@@ -212,13 +212,24 @@
         </div>
     </div>
 
-    <!-- 課外書籍容器 -->
-    <div id="booksContainer" class="box">
+    <!-- 課外書籍區域 -->
+    <div id="booksContainer" class="box" style="display: none;">
         <h2>課外書籍討論</h2>
-        <p>請在首次留言中包含書名、作者和討論問題（用「；」分隔，例如：紅樓夢；曹雪芹；賈寶玉為何選擇出家？）。</p>
-        <div id="chatHistory"></div>
-        <textarea id="userInput" rows="3" placeholder="請輸入您的信息..."></textarea>
-        <button onclick="sendMessage()">發送</button>
+        <p>請提供書名、作者及討論問題，與AI進行互動討論。</p>
+        <div>
+            <label for="bookTitle">書名：</label>
+            <input type="text" id="bookTitle" placeholder="請輸入書名">
+        </div>
+        <div>
+            <label for="bookAuthor">作者：</label>
+            <input type="text" id="bookAuthor" placeholder="請輸入作者">
+        </div>
+        <div>
+            <label for="discussionQuestion">討論問題：</label>
+            <textarea id="discussionQuestion" rows="3" placeholder="請輸入討論問題"></textarea>
+        </div>
+        <button onclick="startDiscussion()">開始討論</button>
+        <div id="chatArea"></div>
     </div>
 
     <script>
@@ -249,6 +260,9 @@
             "閱讀": {
                 commentNote: "必須用繁體字。點評時，需評估答題方向是否合理、文本依據是否充實具體、闡釋推論是否嚴謹、主題句是否清晰。文本依據應概括歸納而非直接引用原文，除非題目中有『摘錄』字眼。改寫範例應使答案更圓足，但若學生答題方向錯誤，則不跟從錯誤方向改寫。點評以段落形式呈現，不使用列點。在「改寫範例」前，加入答題步驟及思路，描述各部分方向，步驟因題制宜，可能包括【鋪墊】、【回應】、【文本依據】、【闡釋】，靈活運用。每個步驟以【步驟名】標題加分行內容呈現，排版整齊。表格中只包含文字和標點，不含『---』等符號。",
                 guideNote: "必須用繁體字。僅生成三道問題以引導用家回答閱讀篇章的問題，問題針對題目，引導思考文本內容、結構和主題，不含其他內容。生成15個由兩個字構成的答題詞匯，詞匯需與答題方向相關且不重複，旨在令用家在答題時有更豐富的詞匯，確保不能有「|--------|」及「| 詞匯 |」，排版整齊。輸出分為兩個部分：### 答題指引、### 答題詞匯。答題指引以問題形式呈現，每個問題占一行。答題詞匯以表格形式呈現，每個詞占一行。"
+            },
+            "課外書籍": {
+                prompt: "對象是高中生，我希望你用日常點的用語回語，不要過於理論化。我希望你不要長篇大論，要言簡意賅說出你的分析，並乾以例子，然後引導我深入思考，當你引我思考而我沒有接續，反而寫其他內容時，請你一定要繼續追問我。"
             }
         };
 
@@ -722,37 +736,32 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             }
         }
 
-        // 課外書籍聊天功能
-        let chatHistory = [];
-        let isFirstMessage = true;
-
-        async function sendMessage() {
-            const userInput = document.getElementById("userInput").value.trim();
-            if (!userInput) {
-                alert("請輸入信息");
+       // 開始課外書籍討論
+        async function startDiscussion() {
+            const bookTitle = document.getElementById("bookTitle").value.trim();
+            const bookAuthor = document.getElementById("bookAuthor").value.trim();
+            const discussionQuestion = document.getElementById("discussionQuestion").value.trim();
+            if (!bookTitle || !bookAuthor || !discussionQuestion) {
+                alert("請填寫書名、作者和討論問題");
                 return;
             }
 
-            if (isFirstMessage) {
-                const parts = userInput.split("；");
-                if (parts.length < 3) {
-                    alert("第一次留言必須包含書名、作者和討論問題，用「；」分隔");
-                    return;
-                }
-                isFirstMessage = false;
-            }
+            const chatArea = document.getElementById("chatArea");
+            chatArea.innerHTML = `<div class="message user-message"><strong>我：</strong> 書名：${bookTitle}，作者：${bookAuthor}，討論問題：${discussionQuestion}</div>`;
 
-            addMessageToHistory("user", userInput);
+            const prompt = `書名：${bookTitle}\n作者：${bookAuthor}\n討論問題：${discussionQuestion}\n\n${categories["課外書籍"].prompt}`;
 
-            const prompt = `對象是高中生，我希望你用日常點的用語回語，不要過於理論化。我希望你不要長篇大論，要言簡意賅說出你的分析，並乾以例子，然後引導我深入思考，當你引我思考而我沒有接續，反而寫其他內容時，請你一定要繼續追問我。用戶信息：${userInput}`;
             try {
-                const aiResponse = await callAPI(prompt);
-                addMessageToHistory("ai", aiResponse);
+                const response = await callAPI(prompt);
+                chatArea.innerHTML += `<div class="message ai-message"><strong>AI：</strong> ${response}</div>`;
+                chatArea.scrollTop = chatArea.scrollHeight;
             } catch (error) {
-                addMessageToHistory("ai", "抱歉，我無法回應您的信息。😓");
+                if (error.message === "所有 API 密鑰均無法使用") {
+                    alert("今日 API 調用次數已用完或API無法連接，請明天再試");
+                } else {
+                    alert("討論生成失敗，請重試");
+                }
             }
-
-            document.getElementById("userInput").value = "";
         }
 
         function addMessageToHistory(sender, message) {
