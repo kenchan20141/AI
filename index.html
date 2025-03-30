@@ -85,6 +85,17 @@
         #outlineStructureArea, #readingFunctionArea, #readingInputArea, #narrativeElementsArea {
             display: none;
         }
+        .enlarge-btn {
+            float: right;
+            margin-left: 10px;
+            background: #28a745;
+        }
+        .enlarge-btn:hover {
+            background: #218838;
+        }
+        .enlarged {
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -310,37 +321,43 @@
 
         // 通用 API 調用函數，包含自動切換 API 密鑰邏輯
         async function callAPI(prompt) {
-            try {
-                const response = await fetch(API_URL, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model: MODEL,
-                        messages: [{ role: "user", content: prompt }]
-                    })
-                });
+            let attempts = 0;
+            while (attempts < API_KEYS.length) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: MODEL,
+                            messages: [{ role: "user", content: prompt }]
+                        })
+                    });
 
-                if (response.status === 429) {
-                    currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
-                    if (currentApiKeyIndex === 0) {
-                        throw new Error("所有 API 密鑰均已達到上限");
+                    if (response.status === 429) { // 用量超限
+                        currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+                        attempts++;
+                        continue;
                     }
-                    return callAPI(prompt);
-                }
 
-                if (!response.ok) {
-                    throw new Error(`API 調用失敗: ${response.statusText}`);
-                }
+                    if (!response.ok) { // 其他錯誤（如連線失敗）
+                        throw new Error(`API 調用失敗: ${response.statusText}`);
+                    }
 
-                const data = await response.json();
-                return data.choices[0].message.content.trim();
-            } catch (error) {
-                console.error(error);
-                throw error;
+                    const data = await response.json();
+                    return data.choices[0].message.content.trim();
+                } catch (error) {
+                    console.error(error);
+                    currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+                    attempts++;
+                    if (attempts >= API_KEYS.length) {
+                        throw new Error("所有 API 密鑰均無法使用");
+                    }
+                }
             }
+            throw new Error("API 調用失敗");
         }
 
         // 生成寫作題目
@@ -367,7 +384,7 @@
                         今日題目：<strong>${title}</strong>
                         <table>
                             <tr><th>結構段重點</th><th>情節大要</th></tr>
-                            <tr><td>${focus}</td><td>${plot}</td></tr>
+                            <tr><td>${focus}</td><td>${divt}</tr>
                         </table>
                     `;
                     localStorage.setItem("currentTopic", title);
@@ -378,8 +395,8 @@
                     localStorage.setItem("currentTopic", topic);
                 }
             } catch (error) {
-                if (error.message === "所有 API 密鑰均已達到上限") {
-                    alert("今日 API 調用次數已用完，請明天再試");
+                if (error.message === "所有 API 密鑰均無法使用") {
+                    alert("API 服務目前不可用，請稍後再試");
                 } else {
                     alert("生成題目時出錯，請重試");
                 }
@@ -551,7 +568,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         const comments = parseCommentPart(commentPart);
                         const rewrites = parseRewritePart(rewritePart);
 
-                        let commentTableHTML = "<h3>AI點評及建議：</h3><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>";
+                        let commentTableHTML = `<h3>AI點評及建議：</h3><button class="enlarge-btn" onclick="enlargeTable(this)">放大</button><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
                         content.forEach(item => {
                             const comment = comments[item.part] ? comments[item.part].comment : "無";
                             const suggestion = comments[item.part] ? comments[item.part].suggestion : "無";
@@ -559,7 +576,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         });
                         commentTableHTML += "</table>";
 
-                        let rewriteTableHTML = "<h3>改寫後的大綱：</h3><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>";
+                        let rewriteTableHTML = `<h3>改寫後的大綱：</h3><button class="enlarge-btn" onclick="enlargeTable(this)">放大</button><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
                         parts.forEach(part => {
                             const rewrite = rewrites[part] || { focus: "無", plot: "無" };
                             rewriteTableHTML += `<tr><td>${part}</td><td>${rewrite.focus}</td><td>${rewrite.plot}</td></tr>`;
@@ -585,8 +602,8 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         document.getElementById("commentResult").innerHTML = commentHTML;
                     }
                 } catch (error) {
-                    if (error.message === "所有 API 密鑰均已達到上限") {
-                        alert("今日 API 調用次數已用完，請明天再試");
+                    if (error.message === "所有 API 密鑰均無法使用") {
+                        alert("API 服務目前不可用，請稍後再試");
                     } else {
                         alert("點評生成失敗，請重試");
                     }
@@ -673,14 +690,20 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         document.getElementById("commentResult").innerHTML = guideHTML;
                     }
                 } catch (error) {
-                    if (error.message === "所有 API 密鑰均已達到上限") {
-                        alert("今日 API 調用次數已用完，請明天再試");
+                    if (error.message === "所有 API 密鑰均無法使用") {
+                        alert("API 服務目前不可用，請稍後再試");
                     } else {
                         alert("生成失敗，請重試");
                     }
                     document.getElementById("commentResult").innerHTML = "";
                 }
             }
+        }
+
+        // 放大表格功能
+        function enlargeTable(button) {
+            const table = button.nextElementSibling;
+            table.classList.toggle("enlarged");
         }
 
         // 頁面加載時初始化
