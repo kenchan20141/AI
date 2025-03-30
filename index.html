@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -87,6 +85,39 @@
         #outlineStructureArea, #readingFunctionArea, #readingInputArea, #narrativeElementsArea {
             display: none;
         }
+        /* 模態窗口樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 800px;
+            overflow: auto;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -171,6 +202,14 @@
         <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
         <button onclick="submitWriting()">提交</button>
         <div id="commentResult"></div>
+    </div>
+
+    <!-- 模態窗口 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
     </div>
 
     <script>
@@ -312,36 +351,42 @@
 
         // 通用 API 調用函數，包含自動切換 API 密鑰邏輯
         async function callAPI(prompt) {
-            try {
-                const response = await fetch(API_URL, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model: MODEL,
-                        messages: [{ role: "user", content: prompt }]
-                    })
-                });
+            let attempts = 0;
+            const maxAttempts = API_KEYS.length;
+            while (attempts < maxAttempts) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: MODEL,
+                            messages: [{ role: "user", content: prompt }]
+                        })
+                    });
 
-                if (response.status === 429) {
-                    currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
-                    if (currentApiKeyIndex === 0) {
-                        throw new Error("所有 API 密鑰均已達到上限");
+                    if (response.status === 429) {
+                        currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+                        attempts++;
+                        continue;
                     }
-                    return callAPI(prompt);
-                }
 
-                if (!response.ok) {
-                    throw new Error(`API 調用失敗: ${response.statusText}`);
-                }
+                    if (!response.ok) {
+                        throw new Error(`API 調用失敗: ${response.statusText}`);
+                    }
 
-                const data = await response.json();
-                return data.choices[0].message.content.trim();
-            } catch (error) {
-                console.error(error);
-                throw error;
+                    const data = await response.json();
+                    return data.choices[0].message.content.trim();
+                } catch (error) {
+                    console.error(error);
+                    currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+                    attempts++;
+                    if (attempts >= maxAttempts) {
+                        throw new Error("所有 API 密鑰均無法使用");
+                    }
+                }
             }
         }
 
@@ -380,8 +425,8 @@
                     localStorage.setItem("currentTopic", topic);
                 }
             } catch (error) {
-                if (error.message === "所有 API 密鑰均已達到上限") {
-                    alert("今日 API 調用次數已用完，請明天再試");
+                if (error.message === "所有 API 密鑰均無法使用") {
+                    alert("今日 API 調用次數已用完或API無法連接，請明天再試");
                 } else {
                     alert("生成題目時出錯，請重試");
                 }
@@ -553,7 +598,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         const comments = parseCommentPart(commentPart);
                         const rewrites = parseRewritePart(rewritePart);
 
-                        let commentTableHTML = "<h3>AI點評及建議：</h3><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>";
+                        let commentTableHTML = `<h3>AI點評及建議：<button onclick="showModal('commentTable')">放大</button></h3><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
                         content.forEach(item => {
                             const comment = comments[item.part] ? comments[item.part].comment : "無";
                             const suggestion = comments[item.part] ? comments[item.part].suggestion : "無";
@@ -561,7 +606,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         });
                         commentTableHTML += "</table>";
 
-                        let rewriteTableHTML = "<h3>改寫後的大綱：</h3><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>";
+                        let rewriteTableHTML = `<h3>改寫後的大綱：</h3><table id="rewriteTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
                         parts.forEach(part => {
                             const rewrite = rewrites[part] || { focus: "無", plot: "無" };
                             rewriteTableHTML += `<tr><td>${part}</td><td>${rewrite.focus}</td><td>${rewrite.plot}</td></tr>`;
@@ -587,8 +632,8 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         document.getElementById("commentResult").innerHTML = commentHTML;
                     }
                 } catch (error) {
-                    if (error.message === "所有 API 密鑰均已達到上限") {
-                        alert("今日 API 調用次數已用完，請明天再試");
+                    if (error.message === "所有 API 密鑰均無法使用") {
+                        alert("今日 API 調用次數已用完或API無法連接，請明天再試");
                     } else {
                         alert("點評生成失敗，請重試");
                     }
@@ -675,14 +720,29 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         document.getElementById("commentResult").innerHTML = guideHTML;
                     }
                 } catch (error) {
-                    if (error.message === "所有 API 密鑰均已達到上限") {
-                        alert("今日 API 調用次數已用完，請明天再試");
+                    if (error.message === "所有 API 密鑰均無法使用") {
+                        alert("今日 API 調用次數已用完或API無法連接，請明天再試");
                     } else {
                         alert("生成失敗，請重試");
                     }
                     document.getElementById("commentResult").innerHTML = "";
                 }
             }
+        }
+
+        // 顯示模態窗口
+        function showModal(tableId) {
+            const table = document.getElementById(tableId).cloneNode(true);
+            table.style.width = "100%";
+            table.style.fontSize = "1.2em"; // 放大字體
+            document.getElementById("modalContent").innerHTML = "";
+            document.getElementById("modalContent").appendChild(table);
+            document.getElementById("modal").style.display = "block";
+        }
+
+        // 關閉模態窗口
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
         }
 
         // 頁面加載時初始化
