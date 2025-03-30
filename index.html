@@ -75,10 +75,17 @@
             text-align: left;
             vertical-align: top;
             word-break: break-word;
-            min-width: 100px; /* 結構段重點、情節大要、點評、建議 */
         }
         .table-container th:first-child, .table-container td:first-child {
-            min-width: 10px; /* 部件列維持較小寬度 */
+            min-width: 50px; /* 部件列 */
+        }
+        .table-container th:nth-child(2), .table-container td:nth-child(2),
+        .table-container th:nth-child(3), .table-container td:nth-child(3) {
+            min-width: 100px; /* 結構段重點、情節大要 */
+        }
+        .table-container th:nth-child(4), .table-container td:nth-child(4),
+        .table-container th:nth-child(5), .table-container td:nth-child(5) {
+            min-width: 150px; /* 點評、建議 */
         }
         .table-container th {
             background: #f0f0f0;
@@ -106,38 +113,6 @@
         }
         #outlineStructureArea, #readingFunctionArea, #readingInputArea, #narrativeElementsArea {
             display: none;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 800px;
-            overflow: auto;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -223,14 +198,6 @@
         <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
         <button onclick="submitWriting()">提交</button>
         <div id="commentResult"></div>
-    </div>
-
-    <!-- 模態窗口 -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <div id="modalContent"></div>
-        </div>
     </div>
 
     <script>
@@ -619,7 +586,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         const comments = parseCommentPart(commentPart);
                         const rewrites = parseRewritePart(rewritePart);
 
-                        let commentTableHTML = `<h3>AI點評及建議：<button onclick="showModal('commentTable')">放大</button></h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
+                        let commentTableHTML = `<h3>AI點評及建議：</h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
                         content.forEach(item => {
                             const comment = comments[item.part] ? comments[item.part].comment : "無";
                             const suggestion = comments[item.part] ? comments[item.part].suggestion : "無";
@@ -749,21 +716,6 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     document.getElementById("commentResult").innerHTML = "";
                 }
             }
-        }
-
-        // 顯示模態窗口
-        function showModal(tableId) {
-            const table = document.getElementById(tableId).cloneNode(true);
-            table.style.width = "100%";
-            table.style.fontSize = "1.2em";
-            document.getElementById("modalContent").innerHTML = "";
-            document.getElementById("modalContent").appendChild(table);
-            document.getElementById("modal").style.display = "block";
-        }
-
-        // 關閉模態窗口
-        function closeModal() {
-            document.getElementById("modal").style.display = "none";
         }
 
         // 頁面加載時初始化
