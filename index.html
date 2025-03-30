@@ -106,32 +106,29 @@
         #booksBtn:hover {
             background-color: #e0a800;
         }
-        .user-message {
-            text-align: right;
-            color: blue;
-            margin: 5px 0;
-            background-color: #e6f7ff;
-            padding: 10px;
-            border-radius: 5px;
-            align-self: flex-end;
-        }
-        .ai-message {
-            text-align: left;
-            color: green;
-            margin: 5px 0;
-            background-color: #f0f0f0;
-            padding: 10px;
-            border-radius: 5px;
-            align-self: flex-start;
-        }
         #chatHistory {
-            display: flex;
-            flex-direction: column;
             max-height: 300px;
             overflow-y: auto;
             border: 1px solid #ccc;
             padding: 10px;
             margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        .user-message {
+            text-align: right;
+            color: blue;
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #e6f7ff;
+            border-radius: 5px;
+        }
+        .ai-message {
+            text-align: left;
+            color: green;
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #f0fff0;
+            border-radius: 5px;
         }
         #writingContainer, #readingContainer, #booksContainer {
             display: none;
@@ -223,25 +220,14 @@
     <!-- 課外書籍容器 -->
     <div id="booksContainer" class="box">
         <h2>課外書籍討論</h2>
-        <p>請在下方表格中填寫書名、作者和討論問題。</p>
-        <table>
-            <tr>
-                <td>書名：</td>
-                <td><input type="text" id="bookTitle" placeholder="請輸入書名"></td>
-            </tr>
-            <tr>
-                <td>作者：</td>
-                <td><input type="text" id="author" placeholder="請輸入作者"></td>
-            </tr>
-            <tr>
-                <td>討論問題：</td>
-                <td><input type="text" id="discussionQuestion" placeholder="請輸入討論問題"></td>
-            </tr>
-        </table>
+        <p>請在下方填寫書名、作者和討論問題：</p>
+        <input type="text" id="bookTitle" placeholder="書名">
+        <input type="text" id="author" placeholder="作者">
+        <textarea id="discussionQuestion" rows="3" placeholder="討論問題"></textarea>
         <button onclick="startDiscussion()">開始討論</button>
-        <div id="chatHistory" style="display: none;"></div>
-        <textarea id="userInput" rows="3" placeholder="請輸入您的信息..." style="display: none;"></textarea>
-        <button onclick="sendMessage()" style="display: none;">發送</button>
+        <div id="chatHistory"></div>
+        <textarea id="userInput" rows="3" placeholder="請輸入您的信息..."></textarea>
+        <button onclick="sendMessage()">發送</button>
     </div>
 
     <script>
@@ -745,31 +731,35 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             }
         }
 
-        // 課外書籍聊天功能
+        // 課外書籍討論功能
         let chatHistory = [];
+        let isFirstMessage = true;
+        let bookTitle = "";
+        let author = "";
+        let discussionQuestion = "";
 
         async function startDiscussion() {
-            const bookTitle = document.getElementById("bookTitle").value.trim();
-            const author = document.getElementById("author").value.trim();
-            const discussionQuestion = document.getElementById("discussionQuestion").value.trim();
+            bookTitle = document.getElementById("bookTitle").value.trim();
+            author = document.getElementById("author").value.trim();
+            discussionQuestion = document.getElementById("discussionQuestion").value.trim();
             if (!bookTitle || !author || !discussionQuestion) {
-                alert("請填寫所有字段");
+                alert("請填寫書名、作者和討論問題");
                 return;
             }
-            const firstMessage = `書名：${bookTitle}；作者：${author}；討論問題：${discussionQuestion}`;
-            addMessageToHistory("user", firstMessage);
-            const prompt = `對象是高中生，請用日常、親切的語氣回應，不要過於理論化或正式。必須用繁體字回應。請保持言簡意賅，提供簡潔的分析和例子，然後引導用戶深入思考。如果用戶沒有接續你的問題，請繼續追問。請不要使用括號、列點或解釋自己的回應目的，始終用完整的句子回應。用戶信息：${firstMessage}`;
+            isFirstMessage = false;
+            addMessageToHistory("user", `書名：${bookTitle}\n作者：${author}\n討論問題：${discussionQuestion}`);
+            await sendInitialMessage();
+        }
+
+        async function sendInitialMessage() {
+            const prompt = `我是一位高中生，正在閱讀《${bookTitle}》，作者是${author}。我想討論的問題是：${discussionQuestion}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。`;
+            addMessageToHistory("ai", "正在生成回應...");
             try {
                 const aiResponse = await callAPI(prompt);
-                addMessageToHistory("ai", aiResponse);
+                updateLastAIMessage(aiResponse);
             } catch (error) {
-                addMessageToHistory("ai", "抱歉，我無法回應您的信息。😓");
+                updateLastAIMessage("抱歉，我無法回應您的信息。😓");
             }
-            document.getElementById("chatHistory").style.display = "block";
-            document.getElementById("userInput").style.display = "block";
-            document.querySelector("#booksContainer button[onclick='sendMessage()']").style.display = "block";
-            document.querySelector("#booksContainer table").style.display = "none";
-            document.querySelector("#booksContainer button[onclick='startDiscussion()']").style.display = "none";
         }
 
         async function sendMessage() {
@@ -779,12 +769,13 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                 return;
             }
             addMessageToHistory("user", userInput);
-            const prompt = `對象是高中生，請用日常、親切的語氣回應，不要過於理論化或正式。請保持言簡意賅，提供簡潔的分析和例子，然後引導用戶深入思考。如果用戶沒有接續你的問題，請繼續追問。請不要使用括號、列點或解釋自己的回應目的，始終用完整的句子回應。用戶信息：${userInput}`;
+            const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。`;
+            addMessageToHistory("ai", "正在生成回應...");
             try {
                 const aiResponse = await callAPI(prompt);
-                addMessageToHistory("ai", aiResponse);
+                updateLastAIMessage(aiResponse);
             } catch (error) {
-                addMessageToHistory("ai", "抱歉，我無法回應您的信息。😓");
+                updateLastAIMessage("抱歉，我無法回應您的信息。😓");
             }
             document.getElementById("userInput").value = "";
         }
@@ -794,9 +785,23 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             const chatHistoryDiv = document.getElementById("chatHistory");
             const messageDiv = document.createElement("div");
             messageDiv.className = sender === "user" ? "user-message" : "ai-message";
+            if (sender === "ai" && message === "正在生成回應...") {
+                messageDiv.id = "ai-loading";
+            }
             messageDiv.textContent = message;
             chatHistoryDiv.appendChild(messageDiv);
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+        }
+
+        function updateLastAIMessage(newMessage) {
+            const chatHistoryDiv = document.getElementById("chatHistory");
+            const loadingDiv = document.getElementById("ai-loading");
+            if (loadingDiv) {
+                loadingDiv.textContent = newMessage;
+                loadingDiv.id = "";
+            } else {
+                addMessageToHistory("ai", newMessage);
+            }
         }
 
         // 頁面加載時初始化
