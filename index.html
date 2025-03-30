@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -210,24 +212,13 @@
         </div>
     </div>
 
-    <!-- 課外書籍區域 -->
-    <div id="extracurricularBooksArea" class="box" style="display: none;">
+    <!-- 課外書籍容器 -->
+    <div id="booksContainer" class="box">
         <h2>課外書籍討論</h2>
-        <p>請提供書名、作者及討論問題，與AI進行互動討論。</p>
-        <div>
-            <label for="bookTitle">書名：</label>
-            <input type="text" id="bookTitle" placeholder="請輸入書名">
-        </div>
-        <div>
-            <label for="bookAuthor">作者：</label>
-            <input type="text" id="bookAuthor" placeholder="請輸入作者">
-        </div>
-        <div>
-            <label for="discussionQuestion">討論問題：</label>
-            <textarea id="discussionQuestion" rows="3" placeholder="請輸入討論問題"></textarea>
-        </div>
-        <button onclick="startDiscussion()">開始討論</button>
-        <div id="chatArea"></div>
+        <p>請在首次留言中包含書名、作者和討論問題（用「；」分隔，例如：紅樓夢；曹雪芹；賈寶玉為何選擇出家？）。</p>
+        <div id="chatHistory"></div>
+        <textarea id="userInput" rows="3" placeholder="請輸入您的信息..."></textarea>
+        <button onclick="sendMessage()">發送</button>
     </div>
 
     <script>
