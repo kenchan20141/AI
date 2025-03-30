@@ -118,6 +118,11 @@
             text-decoration: none;
             cursor: pointer;
         }
+        /* 新增樣式：可滾動的表格容器 */
+        .scrollable-table {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -207,7 +212,7 @@
     <!-- 模態窗口 -->
     <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
+            <span class="close" onclick="closeModal()">×</span>
             <div id="modalContent"></div>
         </div>
     </div>
@@ -598,13 +603,13 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         const comments = parseCommentPart(commentPart);
                         const rewrites = parseRewritePart(rewritePart);
 
-                        let commentTableHTML = `<h3>AI點評及建議：<button onclick="showModal('commentTable')">放大</button></h3><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
+                        let commentTableHTML = `<div class="scrollable-table"><h3>AI點評及建議：<button onclick="showModal('commentTable')">放大</button></h3><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
                         content.forEach(item => {
                             const comment = comments[item.part] ? comments[item.part].comment : "無";
                             const suggestion = comments[item.part] ? comments[item.part].suggestion : "無";
                             commentTableHTML += `<tr><td>${item.part}</td><td>${item.focus}</td><td>${item.plot}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
                         });
-                        commentTableHTML += "</table>";
+                        commentTableHTML += "</table></div>";
 
                         let rewriteTableHTML = `<h3>改寫後的大綱：</h3><table id="rewriteTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
                         parts.forEach(part => {
