@@ -50,7 +50,6 @@
             width: 100%;
             border-collapse: collapse;
             margin: 10px 0;
-            table-layout: fixed; /* 固定表格布局 */
         }
         th, td {
             border: 1px solid #ccc;
@@ -61,28 +60,6 @@
         }
         th {
             background: #f0f0f0;
-        }
-        /* 調整表格列寬 */
-        table th:nth-child(1), table td:nth-child(1) {
-            width: 10%; /* 部份 */
-        }
-        table th:nth-child(2), table td:nth-child(2) {
-            width: 35%; /* 結構段重點 */
-        }
-        table th:nth-child(3), table td:nth-child(3) {
-            width: 35%; /* 情節大要 */
-        }
-        table th:nth-child(4), table td:nth-child(4) {
-            width: 60%; /* 點評 */
-        }
-        table th:nth-child(5), table td:nth-child(5) {
-            width: 60%; /* 建議 */
-        }
-        /* 使表格可左右滾動 */
-        .table-container {
-            overflow-x: auto;
-            margin: 10px 0;
-            width: 100%;
         }
         #topicResult, #commentResult {
             margin-top: 15px;
@@ -230,7 +207,7 @@
     <!-- 模態窗口 -->
     <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
+            <span class="close" onclick="closeModal()">&times;</span>
             <div id="modalContent"></div>
         </div>
     </div>
@@ -354,15 +331,13 @@
                 localStorage.removeItem("currentPlot");
                 if (writingType === "片段描寫") {
                     customTopicArea.innerHTML = `
-                        <div class="table-container">
-                            <table>
-                                <tr><th colspan="2">自訂題目</th></tr>
-                                <tr><td colspan="2"><input type="text" id="customTitle" placeholder="請輸入自訂題目"></td></tr>
-                                <tr><th>結構段重點</th><th>情節大要</th></tr>
-                                <tr><td><textarea id="customFocus" rows="3" placeholder="請輸入結構段重點"></textarea></td>
-                                    <td><textarea id="customPlot" rows="3" placeholder="請輸入情節大要"></textarea></td></tr>
-                            </table>
-                        </div>
+                        <table>
+                            <tr><th colspan="2">自訂題目</th></tr>
+                            <tr><td colspan="2"><input type="text" id="customTitle" placeholder="請輸入自訂題目"></td></tr>
+                            <tr><td>結構段重點</td><td>情節大要</td></tr>
+                            <tr><td><textarea id="customFocus" rows="3" placeholder="請輸入結構段重點"></textarea></td>
+                                <td><textarea id="customPlot" rows="3" placeholder="請輸入情節大要"></textarea></td></tr>
+                        </table>
                         <button onclick="setCustomTopic()">確認題目</button>
                     `;
                 } else {
@@ -437,12 +412,10 @@
                     }
                     document.getElementById("topicResult").innerHTML = `
                         今日題目：<strong>${title}</strong>
-                        <div class="table-container">
-                            <table>
-                                <tr><th>結構段重點</th><th>情節大要</th></tr>
-                                <tr><td>${focus}</td><td>${plot}</td></tr>
-                            </table>
-                        </div>
+                        <table>
+                            <tr><th>結構段重點</th><th>情節大要</th></tr>
+                            <tr><td>${focus}</td><td>${plot}</td></tr>
+                        </table>
                     `;
                     localStorage.setItem("currentTopic", title);
                     localStorage.setItem("currentFocus", focus);
@@ -474,12 +447,10 @@
                 }
                 document.getElementById("topicResult").innerHTML = `
                     自訂題目：<strong>${title}</strong>
-                    <div class="table-container">
-                        <table>
-                            <tr><th>結構段重點</th><th>情節大要</th></tr>
-                            <tr><td>${focus}</td><td>${plot}</td></tr>
-                        </table>
-                    </div>
+                    <table>
+                        <tr><th>結構段重點</th><th>情節大要</th></tr>
+                        <tr><td>${focus}</td><td>${plot}</td></tr>
+                    </table>
                 `;
                 localStorage.setItem("currentTopic", title);
                 localStorage.setItem("currentFocus", focus);
@@ -499,13 +470,13 @@
         function generateOutlineTable() {
             const structure = document.getElementById("structure").value;
             let parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
-            let tableHTML = '<div class="table-container"><table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>';
+            let tableHTML = "<table><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>";
             parts.forEach((part, index) => {
                 const focusId = structure + "Focus" + (index + 1);
                 const plotId = structure + "Plot" + (index + 1);
                 tableHTML += `<tr><td>${part}</td><td><textarea id="${focusId}" rows="3"></textarea></td><td><textarea id="${plotId}" rows="3"></textarea></td></tr>`;
             });
-            tableHTML += '</table></div>';
+            tableHTML += "</table>";
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
         }
 
@@ -627,20 +598,20 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         const comments = parseCommentPart(commentPart);
                         const rewrites = parseRewritePart(rewritePart);
 
-                        let commentTableHTML = `<h3>AI點評及建議：<button onclick="showModal('commentTable')">放大</button></h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
+                        let commentTableHTML = `<h3>AI點評及建議：<button onclick="showModal('commentTable')">放大</button></h3><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
                         content.forEach(item => {
                             const comment = comments[item.part] ? comments[item.part].comment : "無";
                             const suggestion = comments[item.part] ? comments[item.part].suggestion : "無";
                             commentTableHTML += `<tr><td>${item.part}</td><td>${item.focus}</td><td>${item.plot}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
                         });
-                        commentTableHTML += "</table></div>";
+                        commentTableHTML += "</table>";
 
-                        let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="rewriteTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
+                        let rewriteTableHTML = `<h3>改寫後的大綱：</h3><table id="rewriteTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
                         parts.forEach(part => {
                             const rewrite = rewrites[part] || { focus: "無", plot: "無" };
                             rewriteTableHTML += `<tr><td>${part}</td><td>${rewrite.focus}</td><td>${rewrite.plot}</td></tr>`;
                         });
-                        rewriteTableHTML += "</table></div>";
+                        rewriteTableHTML += "</table>";
 
                         const explanationHTML = `<h3>改寫說明：</h3><pre>${explanationPart ? explanationPart.trim() : "無說明"}</pre>`;
                         document.getElementById("commentResult").innerHTML = commentTableHTML + rewriteTableHTML + explanationHTML;
@@ -652,12 +623,12 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                         document.getElementById("commentResult").innerHTML = elementsHTML;
                     } else {
                         const commentParts = comment.split("###").map(part => part.trim()).filter(part => part);
-                        let commentHTML = "<h3>AI點評：</h3><div class='table-container'><table>";
+                        let commentHTML = "<h3>AI點評：</h3><table>";
                         commentParts.forEach(part => {
                             const [title, ...content] = part.split("\n").filter(line => line.trim());
                             commentHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
                         });
-                        commentHTML += "</table></div>";
+                        commentHTML += "</table>";
                         document.getElementById("commentResult").innerHTML = commentHTML;
                     }
                 } catch (error) {
@@ -724,12 +695,12 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     const result = await callAPI(prompt);
                     if (readingFunction === "comment") {
                         const parts = result.split("###").map(part => part.trim()).filter(part => part);
-                        let resultHTML = "<h3>AI點評：</h3><div class='table-container'><table>";
+                        let resultHTML = "<h3>AI點評：</h3><table>";
                         parts.forEach(part => {
                             const [title, ...content] = part.split("\n").filter(line => line.trim());
                             resultHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
                         });
-                        resultHTML += "</table></div>";
+                        resultHTML += "</table>";
                         document.getElementById("commentResult").innerHTML = resultHTML;
                     } else {
                         const sections = result.split("###").map(part => part.trim()).filter(part => part);
@@ -741,9 +712,9 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                                 content.slice(0, 3).forEach(question => guideHTML += `<li>${question}</li>`);
                                 guideHTML += "</ul>";
                             } else if (title === "答題詞匯") {
-                                guideHTML += `<h4><strong>${title}</strong></h4><div class="table-container"><table><tr><th>詞匯</th></tr>`;
+                                guideHTML += `<h4><strong>${title}</strong></h4><table><tr><th>詞匯</th></tr>`;
                                 content.slice(0, 15).forEach(word => guideHTML += `<tr><td>${word}</td></tr>`);
-                                guideHTML += "</table></div>";
+                                guideHTML += "</table>";
                             }
                         });
                         document.getElementById("commentResult").innerHTML = guideHTML;
