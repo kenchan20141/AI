@@ -186,7 +186,7 @@
         </div>
         <div id="narrativeElementsArea">
             <label for="narrativeElements">請輸入您的取材或故事背景：</label>
-            <textarea id="narrativeElements" rows="5" placeholder="例如：故事背景、人物設定、取材來源等..."></textarea>
+            <textarea id="narrativeElements" rows="5" placeholder="例如：故事背景、人物設定、取材等..."></textarea>
         </div>
         <div id="writingArea">
             <div id="outlineTableArea"></div>
@@ -209,8 +209,8 @@
             <label for="readingQuestion">貼上題目：</label>
             <textarea id="readingQuestion" rows="3" placeholder="請在此貼上題目..."></textarea>
             <div id="studentAnswerArea" style="display: none;">
-                <label for="studentAnswer">貼上學生的答案：</label>
-                <textarea id="studentAnswer" rows="5" placeholder="請在此貼上學生的答案..."></textarea>
+                <label for="studentAnswer">貼上答案：</label>
+                <textarea id="studentAnswer" rows="5" placeholder="請在此貼上答案..."></textarea>
             </div>
             <button onclick="submitReading()">提交</button>
             <div id="readingResult"></div>
@@ -220,7 +220,7 @@
     <!-- 課外書籍容器 -->
     <div id="booksContainer" class="box">
         <h2>課外書籍討論</h2>
-        <p>請在下方填寫書名、作者和討論問題，開始與AI對話：</p>
+        <p>請在下方填寫書名、作者和討論問題，開始與陳SIR對話：</p>
         <input type="text" id="bookTitle" placeholder="書名">
         <input type="text" id="author" placeholder="作者">
         <textarea id="discussionQuestion" rows="3" placeholder="討論問題"></textarea>
@@ -245,7 +245,7 @@
         const categories = {
             "片段描寫": {
                 topicPrompt: "請生成一道適合中學生練習片段描寫的題目，題目應簡潔表達一個主題或場景，20字以內。同時生成該題目的結構段重點和情節大要。要求：1. 結構段重點解釋片段與題目的邏輯關係、如何扣連，突顯描寫重點，不超過50字。2. 情節大要提供圍繞結構段重點的情節概要，不超過100字，應簡潔、準確，避免過多細節，文筆不宜過於華麗，只需概述應寫的情節，留給學生發揮空間。3. 輸出格式為：題目：...\n結構段重點：...\n情節大要：...\n4. 內容簡潔明了，避免冗長。5. 題目多樣化，避免重複。",
-                commentNote: "必須用繁體字。點評時，必須就題目、結構段重點和情節大要評論寫作內容是否扣題，若離題，範例不必根據原文離題內容改寫。點評分為三部分：### 點評、### 建議、### 改寫範例。只選取最重要的一至兩點評論，聚焦詳略剪裁和文句（包括示現敘事和密度）。若結構段重點或情節大要與題目關係薄弱，需在點評中指出並重點說明。內容要精簡、一語中的。片段描寫需交替運用小物件、動作、對話和內心獨白，提高文句密度（詞匯深度高、物象豐富、實詞比例高），但必須注意：過猶不及，不要連用小物件做主語的句子，適時需要以人物作主語，交替去用，有時加入內心獨白會令文句顯得更自然，密度不宜過高，適時要加入虛詞放緩節奏，張弛有度。此外，要控制詳略節奏，詳寫與題目相關的部分，略寫次要內容。文句密度也是好文筆的標準，需納入考量。點評和建議不應使用列點形式，應以段落呈現。此外，假如整體表現真的不錯，沒有大問題，在點評時稱讚即可，不必吹毛求疵地批評。"
+                commentNote: "必須用繁體字。點評時，必須就上述生成或輸入的題目、結構段重點、情節大要，點評大綱內容是否扣題。請從以下三個角度點評：其一，「結構段重點與題目是否有關、有多大邏輯關係」；其二，「情節大要是否能突顯出結構段重點、寫作內容的詳略剪裁是否恰當，即是否有效突顯結構段重點（前提是結構段重點扣題，如不扣題，情節大要及寫作內容就肯定不扣題），要注意寫作內容、結構段重點兩者與題目有沒有在顯性的邏輯關係，寫作內容要求的不只是取材情節可以與結構段重點及題目構成邏輯關係，更要用詳略剪裁去突顯該部份的邏輯關係，使寫作內容明確呼應結構段重點及題目。」若離題，範例不必根據原文離題內容改寫。點評分為三部分：### 點評、### 建議、### 改寫範例。只選取最重要的一至兩點評論，應先聚焦在評論寫作內容是否在扣連題目及結構段重點的方向以及其詳略剪裁，其次方為文句（包括示現敘事和密度）。若結構段重點或情節大要與題目關係薄弱，須在點評中指出並重點說明。點評內容要精簡、一語中的，僅將最關鍵、影響最大的一至兩項評語點出來，若扣題和詳略剪裁等都處理不得當，則不需要詳評文句。片段描寫需交替運用小物件、動作、對話和內心獨白，提高文句密度（詞匯深度高、物象豐富、實詞比例高），但必須注意：過猶不及，不要連用小物件做主語的句子，適時需要以人物作主語，交替去用，有時加入內心獨白會令文句顯得更自然，密度不宜過高，適時要加入虛詞放緩節奏，張弛有度。此外，要控制詳略節奏，詳寫與題目相關的部分，略寫次要內容。文句密度也是好文筆的標準，需納入考量。點評和建議不應使用列點形式，應以段落呈現。此外，假如整體表現真的不錯，沒有大問題，在點評時稱讚即可，不必吹毛求疵地批評，但在寫作內容的「扣題」邏輯上必須嚴謹把關。"
             },
             "大綱": {
                 topicPrompt: "請生成一道適合中學生練習寫作大綱的題目，要求：1.10字以內 2.加快生成速度 3.除了題目之外，不要生成其他任何內容",
@@ -403,7 +403,7 @@
             const writingType = document.getElementById("writingType").value;
             const prompt = categories[writingType].topicPrompt;
 
-            document.getElementById("topicResult").innerHTML = "正在生成題目...";
+            document.getElementById("topicResult").innerHTML = "陳SIR正在出題...";
 
             try {
                 const topic = await callAPI(prompt);
@@ -565,7 +565,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 教學筆記：${note}`;
             }
 
-            document.getElementById("commentResult").innerHTML = "正在生成點評...";
+            document.getElementById("commentResult").innerHTML = "陳SIR正在點評...";
 
             try {
                 const comment = await callAPI(prompt);
@@ -600,7 +600,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     const comments = parseCommentPart(commentPart);
                     const rewrites = parseRewritePart(rewritePart);
 
-                    let commentTableHTML = `<h3>AI點評及建議：</h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
+                    let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
                     content.forEach(item => {
                         const comment = comments[item.part] ? comments[item.part].comment : "無";
                         const suggestion = comments[item.part] ? comments[item.part].suggestion : "無";
@@ -625,7 +625,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     document.getElementById("commentResult").innerHTML = elementsHTML;
                 } else {
                     const commentParts = comment.split("###").map(part => part.trim()).filter(part => part);
-                    let commentHTML = "<h3>AI點評：</h3><table>";
+                    let commentHTML = "<h3>陳SIR點評：</h3><table>";
                     commentParts.forEach(part => {
                         const [title, ...content] = part.split("\n").filter(line => line.trim());
                         commentHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
@@ -694,13 +694,13 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 教學筆記：${note}`;
             }
 
-            document.getElementById("readingResult").innerHTML = "正在生成" + (readingFunction === "comment" ? "點評" : "指引") + "...";
+            document.getElementById("readingResult").innerHTML = "陳SIR正在思考" + (readingFunction === "comment" ? "點評" : "指引") + "...";
 
             try {
                 const result = await callAPI(prompt);
                 if (readingFunction === "comment") {
                     const parts = result.split("###").map(part => part.trim()).filter(part => part);
-                    let resultHTML = "<h3>AI點評：</h3><table>";
+                    let resultHTML = "<h3>陳SIR點評：</h3><table>";
                     parts.forEach(part => {
                         const [title, ...content] = part.split("\n").filter(line => line.trim());
                         resultHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
@@ -757,7 +757,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 
         async function sendInitialMessage() {
             const prompt = `我是一位高中生，正在閱讀《${bookTitle}》，作者是${author}。我想討論的問題是：${discussionQuestion}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，永遠不要列點回應，也不要提及你會追問我。請用完整句子回應。教學筆記：${categories["課外書籍"].chatNote}`;
-            addMessageToHistory("ai", "正在生成回應...");
+            addMessageToHistory("ai", "陳SIR正在回應...");
             try {
                 const aiResponse = await callAPI(prompt);
                 updateLastAIMessage(aiResponse);
@@ -774,7 +774,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             }
             addMessageToHistory("user", userInput);
             const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。教學筆記：${categories["課外書籍"].chatNote}`;
-            addMessageToHistory("ai", "正在生成回應...");
+            addMessageToHistory("ai", "陳SIR正在回應...");
             try {
                 const aiResponse = await callAPI(prompt);
                 updateLastAIMessage(aiResponse);
@@ -789,7 +789,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             const chatHistoryDiv = document.getElementById("chatHistory");
             const messageDiv = document.createElement("div");
             messageDiv.className = sender === "user" ? "user-message" : "ai-message";
-            if (sender === "ai" && message === "正在生成回應...") {
+            if (sender === "ai" && message === "陳SIR正在回應...") {
                 messageDiv.id = "ai-loading";
             }
             messageDiv.textContent = message;
