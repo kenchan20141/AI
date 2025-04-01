@@ -126,7 +126,7 @@
             margin: 5px 0;
             padding: 5px;
             background-color: #e6f7ff;
-            border-radius: 5px;
+            border-radius  radius: 5px;
         }
         .ai-message {
             text-align: left;
@@ -288,12 +288,12 @@
             <div id="expandCommentResult"></div>
         </div>
         <div id="expandGuideArea">
-            <label for="expandGuideTitle">題目：</label>
-            <input type="text" id="expandGuideTitle" placeholder="請輸入題目">
-            <label for="expandGuideTheme">主題句：</label>
-            <textarea id="expandGuideTheme" rows="2" placeholder="請輸入主題句"></textarea>
-            <label for="expandGuideData">抄錄資料：</label>
-            <textarea id="expandGuideData" rows="3" placeholder="請輸入抄錄資料"></textarea>
+            <table>
+                <tr><th>題目</th><td><input type="text" id="expandGuideTitle" placeholder="請輸入題目"></td></tr>
+                <tr><th>主題句</th><td><textarea id="expandGuideTheme" rows="2" placeholder="請輸入主題句"></textarea></td></tr>
+                <tr><th>抄錄資料</th><td><textarea id="expandGuideData" rows="3" placeholder="請輸入抄錄資料"></textarea></td></tr>
+                <tr><th>整合拓展</th><td><textarea id="expandGuideExpand" rows="3" placeholder="請輸入整合拓展"></textarea></td></tr>
+            </table>
             <button onclick="submitExpand()">提交</button>
             <div id="expandGuideResult"></div>
         </div>
@@ -322,7 +322,7 @@
             },
             "敘事物象": {
                 topicPrompt: "請生成一道適合中學生練習敘事物象的題目，要求：1.必須包含兩個部份,一是片段要交代甚麼情節、敘事重點是甚麼,二是要強調的人物感情。2.只生成一道題目，20字以內 3.加快生成速度 4.除了題目之外，不要生成其他任何內容 5.題目要多變化",
-                commentNote: "必須用繁體字。在「敘事物象」中，學生需要運用豐富的物象來增強故事的生動性和真實感。物象應與題目、取材和故事背景緊密相關，並且能夠有效地表達人物的情感和故事的主題。請確保生成的物象不重複，並且排版清晰易讀。此外，每個物象都必須由兩個字構成。"
+                commentNote: "必須用繁體字。在「敘事物象」中，學生需要運用豐富的物象來增強故事的生動性和真實感。物象應與題目、取材和故事背景緊密相關，並且能夠有效地表 CORS達人物的情感和故事的主題。請確保生成的物象不重複，並且排版清晰易讀。此外，每個物象都必須由兩個字構成。"
             },
             "閱讀": {
                 commentNote: "必須用繁體字。點評時，需評估答題方向是否合理、文本依據是否充實具體、闡釋推論是否嚴謹、主題句是否清晰。文本依據應概括歸納而非直接引用原文，除非題目中有『摘錄』字眼。改寫範例應使答案更圓足，但若學生答題方向錯誤，則不跟從錯誤方向改寫。點評以段落形式呈現，不使用列點。在「改寫範例」前，加入答題步驟及思路，描述各部分方向，步驟因題制宜，可能包括【鋪墊】、【回應】、【文本依據】、【闡釋】，靈活運用。每個步驟以【步驟名】標題加分行內容呈現，排版整齊。表格中只包含文字和標點，不含『---』等符號。",
@@ -411,9 +411,6 @@
                 expandWritingArea.style.display = "none";
                 expandGuideArea.style.display = "block";
                 expandTopicSelectionArea.style.display = "none";
-                // 指引功能下直接顯示自訂題目輸入區域
-                document.getElementById("expandCustomTopicArea").style.display = "block";
-                document.getElementById("expandGenerateTopicArea").style.display = "none";
             }
         }
 
@@ -1050,7 +1047,8 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             const title = document.getElementById("expandGuideTitle").value.trim();
             const theme = document.getElementById("expandGuideTheme").value.trim();
             const data = document.getElementById("expandGuideData").value.trim();
-            if (!title || !theme || !data) {
+            const expand = document.getElementById("expandGuideExpand").value.trim();
+            if (!title || !theme || !data || !expand) {
                 alert("請填寫所有輸入");
                 return;
             }
@@ -1066,6 +1064,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 題目：${title}
 主題句：${theme}
 抄錄資料：${data}
+整合拓展：${expand}
 教學筆記：${note}`;
 
             document.getElementById("expandGuideResult").innerHTML = "陳SIR正在思考指引...";
