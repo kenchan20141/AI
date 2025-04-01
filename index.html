@@ -620,72 +620,73 @@
             }
         }
 
-        // 生成寫作題目（修訂部分）
-        async function generateTopic() {
-            const writingType = document.getElementById("writingType").value;
-            let selectedTopic;
+        // 生成寫作題目
+async function generateTopic() {
+    const writingType = document.getElementById("writingType").value;
+    let selectedTopic;
+    do {
+        selectedTopic = topics[Math.floor(Math.random() * topics.length)];
+    } while (selectedTopic === lastTopic && topics.length > 1);
+    lastTopic = selectedTopic;
+    localStorage.setItem("lastTopic", lastTopic);
 
-            // 從預設題目列表中隨機抽取題目，並避免與上一次重複
-            do {
-                selectedTopic = topics[Math.floor(Math.random() * topics.length)];
-            } while (selectedTopic === lastTopic && topics.length > 1);
-            lastTopic = selectedTopic;
-            localStorage.setItem("lastTopic", lastTopic);
-
-            if (writingType === "片段描寫") {
-                document.getElementById("topicResult").innerHTML = "陳SIR正在出題...";
-                try {
-                    const prompt = `請根據以下題目生成結構段重點和情節大要。要求：
+    if (writingType === "片段描寫") {
+        document.getElementById("topicResult").innerHTML = "陳SIR正在出題...";
+        try {
+            const prompt = `請根據以下題目生成結構段重點和情節大要。要求：
 1. 結構段重點解釋片段與題目的邏輯關係、如何扣連，突顯描寫重點，不超過50字。
 2. 情節大要提供圍繞結構段重點的情節概要，不超過100字，應簡潔、準確，避免過多細節，文筆不宜過於華麗，只需概述應寫的情節，留給學生發揮空間。
 3. 輸出格式為：結構段重點：...\n情節大要：...\n
 4. 內容簡潔明了，避免冗長。
 
 題目：${selectedTopic}`;
-                    const response = await callAPI(prompt);
-                    const lines = response.split("\n");
-                    if (lines.length < 2) throw new Error("API 回應格式不正確");
-                    const focus = lines[0].replace("結構段重點：", "").trim();
-                    const plot = lines[1].replace("情節大要：", "").trim();
-                    if (!focus || !plot) throw new Error("生成內容不完整");
-                    document.getElementById("topicResult").innerHTML = `
-                        今日題目：<strong>${selectedTopic}</strong>
-                        <table>
-                            <tr><th>結構段重點</th><th>情節大要</th></tr>
-                            <tr><td>${focus}</td><td>${plot}</td></tr>
-                        </table>
-                    `;
-                    localStorage.setItem("currentTopic", selectedTopic);
-                    localStorage.setItem("currentFocus", focus);
-                    localStorage.setItem("currentPlot", plot);
-                } catch (error) {
-                    if (error.message === "所有 API 密鑰均無法使用") {
-                        alert("今日 API 調用次數已用完或API無法連接，請明天再試");
-                    } else {
-                        alert("生成題目時出錯，請重試");
-                    }
-                    document.getElementById("topicResult").innerHTML = "";
-                }
-            } else if (writingType === "大綱") {
-                document.getElementById("topicResult").innerHTML = "今日題目：<strong>" + selectedTopic + "</strong>";
-                localStorage.setItem("currentTopic", selectedTopic);
+            const response = await callAPI(prompt);
+            // 使用正則表達式解析 API 回應
+            const focusMatch = response.match(/結構段重點：\s*(.+?)(?=\n情節大要：|$)/s);
+            const plotMatch = response.match(/情節大要：\s*(.+)/s);
+            if (!focusMatch || !plotMatch) throw new Error("API 回應格式不正確");
+            const focus = focusMatch[1].trim();
+            const plot = plotMatch[1].trim();
+            if (!focus || !plot) throw new Error("生成內容不完整");
+            document.getElementById("topicResult").innerHTML = `
+                今日題目：<strong>${selectedTopic}</strong>
+                <table>
+                    <tr><th>結構段重點</th><th>情節大要</th></tr>
+                    <tr><td>${focus}</td><td>${plot}</td></tr>
+                </table>
+            `;
+            localStorage.setItem("currentTopic", selectedTopic);
+            localStorage.setItem("currentFocus", focus);
+            localStorage.setItem("currentPlot", plot);
+        } catch (error) {
+            console.error("生成題目時出錯:", error);
+            if (error.message === "所有 API 密鑰均無法使用") {
+                alert("今日 API 調用次數已用完或API無法連接，請明天再試");
             } else {
-                const prompt = categories[writingType].topicPrompt;
-                document.getElementById("topicResult").innerHTML = "陳SIR正在出題...";
-                try {
-                    const topic = await callAPI(prompt);
-                    document.getElementById("topicResult").innerHTML = "今日題目：<strong>" + topic + "</strong>";
-                    localStorage.setItem("currentTopic", topic);
-                } catch (error) {
-                    if (error.message === "所有 API 密鑰均無法使用") {
-                        alert("今日 API 調用次數已用完或API無法連接，請明天再試");
-                    } else {
-                        alert("生成題目時出錯，請重試");
-                    }
-                    document.getElementById("topicResult").innerHTML = "";
-                }
+                alert("生成題目時出錯，請重試");
             }
+            document.getElementById("topicResult").innerHTML = "";
         }
+    } else if (writingType === "大綱") {
+        document.getElementById("topicResult").innerHTML = "今日題目：<strong>" + selectedTopic + "</strong>";
+        localStorage.setItem("currentTopic", selectedTopic);
+    } else {
+        const prompt = categories[writingType].topicPrompt;
+        document.getElementById("topicResult").innerHTML = "陳SIR正在出題...";
+        try {
+            const topic = await callAPI(prompt);
+            document.getElementById("topicResult").innerHTML = "今日題目：<strong>" + topic + "</strong>";
+            localStorage.setItem("currentTopic", topic);
+        } catch (error) {
+            if (error.message === "所有 API 密鑰均無法使用") {
+                alert("今日 API 調用次數已用完或API無法連接，請明天再試");
+            } else {
+                alert("生成題目時出錯，請重試");
+            }
+            document.getElementById("topicResult").innerHTML = "";
+        }
+    }
+}
 
         // 設定自訂題目（寫作）
         function setCustomTopic() {
