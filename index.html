@@ -620,10 +620,12 @@
             }
         }
 
-        // 生成寫作題目
+        // 生成寫作題目（修訂部分）
         async function generateTopic() {
             const writingType = document.getElementById("writingType").value;
             let selectedTopic;
+
+            // 從預設題目列表中隨機抽取題目，並避免與上一次重複
             do {
                 selectedTopic = topics[Math.floor(Math.random() * topics.length)];
             } while (selectedTopic === lastTopic && topics.length > 1);
@@ -704,7 +706,7 @@
                     </table>
                 `;
                 localStorage.setItem("currentTopic", title);
-                localStorage.setItem("currentFocus", focus);
+                localStorage.setItem("currentFocusFrameworks", focus);
                 localStorage.setItem("currentPlot", plot);
             } else {
                 const customTopic = document.getElementById("customTopic").value.trim();
