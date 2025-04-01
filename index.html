@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -150,7 +148,7 @@
         #expandWritingArea {
             margin-top: 10px;
         }
-        #expandCommentResult {
+        #expandResult {
             margin-top: 10px;
         }
     </style>
@@ -166,13 +164,13 @@
             <li><strong>寫作：</strong>提供片段描寫/全文寫作、大綱的練習及敘事物象指引，可選擇生成或自訂題目，並獲取AI點評和建議。</li>
             <li><strong>閱讀：</strong>提供點評和指引功能，可貼上閱讀篇章和題目，獲取AI的點評或答題指引。</li>
             <li><strong>課外書籍：</strong>提供AI聊天室，與AI討論課外書籍，引導深入思考。</li>
-            <li><strong>整合拓展：</strong>提供點評功能，可選擇生成或自訂題目，並獲取AI的點評、建議和改寫。</li>
+            <li><strong>整合拓展：</strong>提供點評和指引功能，可選擇生成或自訂題目，並獲取AI的點評或指引問題。</li>
         </ul>
     </div>
 
     <!-- 範疇選擇 -->
     <div class="box">
-        <h2>選擇練習範疇：</h2>
+        <h2>選擇練習範� RAND疇：</h2>
         <button id="writingBtn">寫作</button>
         <button id="readingBtn">閱讀</button>
         <button id="booksBtn">課外書籍</button>
@@ -255,29 +253,36 @@
     <!-- 整合拓展容器 -->
     <div id="expandContainer" class="box">
         <h2>整合拓展</h2>
-        <label for="expandTopicOption">選擇題目方式：</label>
-        <select id="expandTopicOption" onchange="toggleExpandTopicInput()">
-            <option value="generate">生成題目</option>
-            <option value="custom">自訂題目</option>
+        <label for="expandFunction">選擇功能：</label>
+        <select id="expandFunction" onchange="toggleExpandFunction()">
+            <option value="comment">點評</option>
+            <option value="guide">指引</option>
         </select>
-        <div id="expandGenerateTopicArea">
-            <button onclick="generateExpandTopic()">生成題目</button>
-        </div>
-        <div id="expandCustomTopicArea" style="display: none;">
-            <table>
-                <tr><th>題目</th><td><input type="text" id="expandCustomTitle" placeholder="請輸入題目"></td></tr>
-                <tr><th>主題句</th><td><textarea id="expandCustomTheme" rows="2" placeholder="請輸入主題句"></textarea></td></tr>
-                <tr><th>抄錄資料</th><td><textarea id="expandCustomData" rows="3" placeholder="請輸入抄錄資料"></textarea></td></tr>
-            </table>
-            <button onclick="setExpandCustomTopic()">確認題目</button>
-        </div>
-        <div id="expandTopicResult"></div>
-        <div id="expandWritingArea">
-            <label for="expandContent">整合拓展（最多180字）：</label>
-            <textarea id="expandContent" rows="5" placeholder="請在此輸入整合拓展內容..." oninput="updateCharCount()"></textarea>
-            <p id="charCount">剩餘字數：180</p>
-            <button onclick="submitExpand()">提交</button>
-            <div id="expandCommentResult"></div>
+        <div id="expandInputArea">
+            <label for="expandTopicOption">選擇題目方式：</label>
+            <select id="expandTopicOption" onchange="toggleExpandTopicInput()">
+                <option value="generate">生成題目</option>
+                <option value="custom">自訂題目</option>
+            </select>
+            <div id="expandGenerateTopicArea">
+                <button onclick="generateExpandTopic()">生成題目</button>
+            </div>
+            <div id="expandCustomTopicArea" style="display: none;">
+                <table>
+                    <tr><th>題目</th><td><input type="text" id="expandCustomTitle" placeholder="請輸入題目"></td></tr>
+                    <tr><th>主題句</th><td><textarea id="expandCustomTheme" rows="2" placeholder="請輸入主題句"></textarea></td></tr>
+                    <tr><th>抄錄資料</th><td><textarea id="expandCustomData" rows="3" placeholder="請輸入抄錄資料"></textarea></td></tr>
+                </table>
+                <button onclick="setExpandCustomTopic()">確認題目</button>
+            </div>
+            <div id="expandTopicResult"></div>
+            <div id="expandWritingArea" style="display: none;">
+                <label for="expandContent">整合拓展（最多180字）：</label>
+                <textarea id="expandContent" rows="5" placeholder="請在此輸入整合拓展內容..." oninput="updateCharCount()"></textarea>
+                <p id="charCount">剩餘字數：180</p>
+            </div>
+            <button onclick="submitExpandFunction()">提交</button>
+            <div id="expandResult"></div>
         </div>
     </div>
 
@@ -314,7 +319,7 @@
                 chatNote: "必須用繁體字，多用EMOJI，偶爾可以用一下網絡用語。"
             },
             "整合拓展": {
-                topicPrompt: "請生成一道適合中學生練習整合拓展的題目，題目應包含主題句和抄錄資料。要求：1. 主題句簡潔，20字以內。2. 抄錄資料為一段文字，不超過100字。3. 輸出格式為：主題句：...\n抄錄資料：...\n4. 內容簡潔明了，避免冗長。5. 題目多樣化，避免重複。",
+                topicPrompt: "請生成一道適合中學生練習整合拓展的題目，題目應包含題目、主題句和抄錄資料。要求：1. 題目簡潔，20字以內。2. 主題句簡潔，20字以內。3. 抄錄資料為一段文字，不超過100字。4. 輸出格式為：題目：...\n主題句：...\n抄錄資料：...\n5. 內容簡潔明了，避免冗長。6. 題目多樣化，避免重複。",
                 commentNote: "必須用繁體字。點評時，需評估「整合拓展」是否能闡釋「抄錄資料」與「主題句」的邏輯關係。需判斷：1.「拓展」方向是否正確（即是否能論證主題句）；2.推論是否嚴謹；3.是否具體不空泛。「點評」時，若方向不正確，需指出並建議如何修訂，需指導緊扣主題句，亦須分析主題句和題目任務的關係是否緊密，例如題目任務為提出建議，但主題句焦點卻是描述問題，則屬於不妥當。「改寫」時亦不能順著「整合拓展」錯誤思路改善，需扣緊主題句，假如主題句本身就未能緊扣題目的任務，則不應圍繞本身錯誤的主題句改寫，要在「改寫」部份針對一個正確的主題句作改寫。此外，改寫部份不宜分為太多角度論述，這樣會令闡釋較零散，須就最多2個角度深入分析、闡釋。改寫部份不得超過180字，且不得虛構資料，包括數據及調查，不要自擬「根據調查」之類，只可根據抄錄資料補充合理細節，「改寫」部份不要重複用家輸入的「抄錄資料」，會白白浪費空間。此外，「改寫」亦要嚴謹對應主題句及抄錄資料關係，例如主題句描述活動問題，則在「改寫」的部份不宜聚焦在改善措施，必須注意詳略、輕重，才能突顯主題句。此外，「改寫」亦要留意題目任務，不要在「改寫」時會順著用家詳略不當或錯誤的「整合拓展」思路改寫。此外，「改寫」部份不要太數據化，例如做計算及分析數據等，這部份最重要是交代事理的邏輯關係。點評分為三部分：### 點評、### 建議、### 改寫。點評和建議以段落形式呈現，不使用列點。拓展方法：以抄錄資料為起點，主題句為終點，運用橫向拓展（逐步推論，回答「為何」或「如何」）或直向拓展（補充具體例子或細節）。改寫部份必須注意要運用好橫向拓展及直向拓展的技巧。常見問題包括：推論方向錯誤、未推論到底、推論點重複、推論跳脫、有量無質，需針對性指出，改寫時亦要避免犯下這些問題。"
             }
         };
@@ -341,7 +346,7 @@
             document.getElementById(containerId).style.display = "block";
             if (containerId === "writingContainer") toggleWritingType();
             if (containerId === "readingContainer") toggleReadingFunction();
-            if (containerId === "expandContainer") toggleExpandTopicInput();
+            if (containerId === "expandContainer") toggleExpandFunction();
         }
 
         // 切換寫作類型
@@ -759,7 +764,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             try {
                 const result = await callAPI(prompt);
                 if (readingFunction === "comment") {
-                    const parts = result.split("###").map(part => part.trim()). bestandfilter(part => part);
+                    const parts = result.split("###").map(part => part.trim()).filter(part => part);
                     let resultHTML = "<h3>陳SIR點評：</h3><table>";
                     parts.forEach(part => {
                         const [title, ...content] = part.split("\n").filter(line => line.trim());
@@ -869,6 +874,18 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
         }
 
         // 整合拓展功能
+        function toggleExpandFunction() {
+            const expandFunction = document.getElementById("expandFunction").value;
+            const expandWritingArea = document.getElementById("expandWritingArea");
+            const expandResult = document.getElementById("expandResult");
+            if (expandFunction === "comment") {
+                expandWritingArea.style.display = "block";
+            } else {
+                expandWritingArea.style.display = "none";
+            }
+            expandResult.innerHTML = "";
+        }
+
         function toggleExpandTopicInput() {
             const option = document.getElementById("expandTopicOption").value;
             const customTopicArea = document.getElementById("expandCustomTopicArea");
@@ -895,14 +912,17 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             try {
                 const topic = await callAPI(prompt);
                 const lines = topic.split("\n");
-                if (lines.length < 2) throw new Error("API 回應格式不正確");
-                const theme = lines[0].replace("主題句：", "").trim();
-                const data = lines[1].replace("抄錄資料：", "").trim();
-                if (!theme || !data) throw new Error("生成內容不完整");
+                if (lines.length < 3) throw new Error("API 回應格式不正確");
+                const title = lines[0].replace("題目：", "").trim();
+                const theme = lines[1].replace("主題句：", "").trim();
+                const data = lines[2].replace("抄錄資料：", "").trim();
+                if (!title || !theme || !data) throw new Error("生成內容不完整");
                 document.getElementById("expandTopicResult").innerHTML = `
+                    題目：<strong>${title}</strong><br>
                     主題句：<strong>${theme}</strong><br>
                     抄錄資料：<strong>${data}</strong>
                 `;
+                localStorage.setItem("expandCurrentTitle", title);
                 localStorage.setItem("expandCurrentTheme", theme);
                 localStorage.setItem("expandCurrentData", data);
             } catch (error) {
@@ -942,6 +962,15 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
             }
         }
 
+        function submitExpandFunction() {
+            const expandFunction = document.getElementById("expandFunction").value;
+            if (expandFunction === "comment") {
+                submitExpand();
+            } else {
+                submitExpandGuide();
+            }
+        }
+
         async function submitExpand() {
             const title = localStorage.getItem("expandCurrentTitle");
             const theme = localStorage.getItem("expandCurrentTheme");
@@ -970,7 +999,7 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
 整合拓展：${content}
 教學筆記：${note}`;
 
-            document.getElementById("expandCommentResult").innerHTML = "陳SIR正在點評...";
+            document.getElementById("expandResult").innerHTML = "陳SIR正在點評...";
 
             try {
                 const comment = await callAPI(prompt);
@@ -981,14 +1010,55 @@ ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\
                     commentHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
                 });
                 commentHTML += "</table>";
-                document.getElementById("expandCommentResult").innerHTML = commentHTML;
+                document.getElementById("expandResult").innerHTML = commentHTML;
             } catch (error) {
                 if (error.message === "所有 API 密鑰均無法使用") {
                     alert("今日 API 調用次數已用完或API無法連接，請明天再試");
                 } else {
                     alert("點評生成失敗，請重試");
                 }
-                document.getElementById("expandCommentResult").innerHTML = "";
+                document.getElementById("expandResult").innerHTML = "";
+            }
+        }
+
+        async function submitExpandGuide() {
+            const title = localStorage.getItem("expandCurrentTitle");
+            const theme = localStorage.getItem("expandCurrentTheme");
+            const data = localStorage.getItem("expandCurrentData");
+            if (!theme || !data) {
+                alert("請先設定題目");
+                return;
+            }
+
+            const prompt = `請根據以下題目、主題句和抄錄資料生成三道問題，以引導用戶思考如何做好整合拓展。要求：
+1. 問題應針對主題句和抄錄資料，引導用戶思考如何闡釋它們之間的邏輯關係。
+2. 問題應有助於用戶構建嚴謹的推論和具體的論述。
+3. 每個問題占一行。
+4. 輸出只包含三道問題，不包含其他內容。
+
+題目：${title || "無"}
+主題句：${theme}
+抄錄資料：${data}`;
+
+            document.getElementById("expandResult").innerHTML = "陳SIR正在思考指引……";
+
+            try {
+                const result = await callAPI(prompt);
+                const questions = result.split("\n").map(q => q.trim()).filter(q => q);
+                if (questions.length < 3) throw new Error("API 回應格式不正確");
+                let questionsHTML = "<h3>陳SIR的指引問題：</h3><ul>";
+                questions.slice(0, 3).forEach(question => {
+                    questionsHTML += `<li>${question}</li>`;
+                });
+                questionsHTML += "</ul>";
+                document.getElementById("expandResult").innerHTML = questionsHTML;
+            } catch (error) {
+                if (error.message === "所有 API 密鑰均無法使用") {
+                    alert("今日 API 調用次數已用完或API無法連接，請明天再試");
+                } else {
+                    alert("生成指引失敗，請重試");
+                }
+                document.getElementById("expandResult").innerHTML = "";
             }
         }
 
