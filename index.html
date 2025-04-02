@@ -607,7 +607,11 @@
                     }
 
                     const data = await response.json();
-                    return data.choices[0].message.content.trim();
+                    const content = data.choices[0].message.content.trim();
+                    if (!content || content.includes("<tool_response>")) {
+                        throw new Error("API 回應無效或包含異常標籤");
+                    }
+                    return content;
                 } catch (error) {
                     console.error(error);
                     currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
@@ -1014,7 +1018,11 @@
                 updateLastAIMessage(aiResponse);
             } catch (error) {
                 console.error("開始討論時出錯:", error);
-                updateLastAIMessage("抱歉，我無法回應您的信息。😓");
+                if (error.message === "所有 API 密鑰均無法使用") {
+                    updateLastAIMessage("今日 API 調用次數已用完，請明天再試。😓");
+                } else {
+                    updateLastAIMessage("抱歉，陳SIR無法回應您的問題，請稍後再試。😅");
+                }
             }
         }
 
@@ -1032,7 +1040,11 @@
                 updateLastAIMessage(aiResponse);
             } catch (error) {
                 console.error("繼續討論時出錯:", error);
-                updateLastAIMessage("抱歉，我無法回應您的信息。😓");
+                if (error.message === "所有 API 密鑰均無法使用") {
+                    updateLastAIMessage("今日 API 調用次數已用完，請明天再試。😓");
+                } else {
+                    updateLastAIMessage("抱歉，陳SIR無法回應您的問題，請稍後再試。😅");
+                }
             }
             document.getElementById("userInput").value = "";
         }
