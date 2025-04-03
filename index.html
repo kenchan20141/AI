@@ -214,7 +214,7 @@
         <div id="writingArea">
             <div id="outlineTableArea"></div>
             <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
-            <label for="writingTone">選擇點評語氣：</label>
+            <label for="writingTone" id="writingToneLabel">選擇點評語氣：</label>
             <select id="writingTone">
                 <option value="serious">嚴肅正經</option>
                 <option value="chen">陳SIR語氣</option>
@@ -489,22 +489,30 @@
             const narrativeElementsArea = document.getElementById("narrativeElementsArea");
             const writingContent = document.getElementById("writingContent");
             const outlineTableArea = document.getElementById("outlineTableArea");
+            const writingToneLabel = document.getElementById("writingToneLabel");
+            const writingTone = document.getElementById("writingTone");
 
             if (writingType === "大綱") {
                 outlineStructureArea.style.display = "block";
                 narrativeElementsArea.style.display = "none";
                 writingContent.style.display = "none";
                 generateOutlineTable();
+                writingToneLabel.style.display = "block";
+                writingTone.style.display = "block";
             } else if (writingType === "敘事物象") {
                 outlineStructureArea.style.display = "none";
                 narrativeElementsArea.style.display = "block";
                 writingContent.style.display = "none";
                 outlineTableArea.innerHTML = "";
+                writingToneLabel.style.display = "none";
+                writingTone.style.display = "none";
             } else {
                 outlineStructureArea.style.display = "none";
                 narrativeElementsArea.style.display = "none";
                 writingContent.style.display = "block";
                 outlineTableArea.innerHTML = "";
+                writingToneLabel.style.display = "block";
+                writingTone.style.display = "block";
             }
             toggleTopicInput();
         }
@@ -786,12 +794,14 @@
                 }
             }
 
-            const tone = document.getElementById("writingTone").value;
             let toneNote = "";
-            if (tone === "chen") {
-                toneNote = "請用輕鬆隨意的語氣進行點評，多用EMOJI，偶爾使用網絡用語，用語要日常生活化一點。如果用戶表現良好，請大加讚賞；如果用戶表現不好，可以善意地揶揄一下，但要注意尺度，不能傷害用戶的自尊心。揶揄時，可運用生活化的比喻。";
-            } else {
-                toneNote = "請用嚴肅正經的語氣進行點評。";
+            if (writingType !== "敘事物象") {
+                const tone = document.getElementById("writingTone").value;
+                if (tone === "chen") {
+                    toneNote = "請用輕鬆隨意的語氣進行點評和建議，多用EMOJI，偶爾使用網絡用語，用語要日常生活化一點。如果用戶表現良好，請大加讚賞；如果用戶表現不好，可以善意地揶揄一下，但要注意尺度，不能傷害用戶的自尊心。揶揄時，可運用生活化的比喻。";
+                } else {
+                    toneNote = "請用嚴肅正經的語氣進行點評和建議。";
+                }
             }
 
             const note = categories[writingType].commentNote;
@@ -802,6 +812,7 @@
                 1. 在「=== 點評及建議 ===」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
                 2. 在「=== 改寫後的大綱 ===」部分，為每個結構段提供改寫後的「結構段重點」和「情節大要」。使用「[part]」標記每個結構段的開始，然後在下一行「結構段重點：」後跟內容，再下一行「情節大要：」後跟內容。結構段數量必須與用戶選擇的大綱結構一致（起承轉合為4段，三線為5段：起、一線、二線、三線、合）。
                 3. 在「=== 改寫說明 ===」部分，提供不超過兩點的改寫說明，每點以「1. 」和「2. 」開始。
+                4. 在「=== 改寫後的大綱 ===」中，請使用正式的語氣，不使用EMOJI或網絡用語。
                 請確保內容簡潔明了。
                 題目：${topic}
                 大綱結構：${structure === "fourPart" ? "起承轉合" : "三線（起、一線、二線、三線、合）"}
@@ -810,7 +821,7 @@
                 |------|------------|----------|
                 ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\n")}
                 教學筆記：${note}
-                點評語氣：${toneNote}`;
+                點評及建議語氣：${toneNote}`;
             } else if (writingType === "敘事物象") {
                 prompt = `請根據以下題目和取材/故事背景生成五十個不重複且相關的物象。要求：
                 1. 物象必須與題目和取材/故事背景緊密相關。
@@ -831,12 +842,13 @@
                 5. 點評時，聚焦詳略剪裁和文句（包括示現敘事和密度），選取最重要的一至兩點
                 6. 若結構段重點或情節大要與題目關係薄弱，需在點評中指出並重點說明
                 7. 點評和建議不應使用列點形式，應以段落呈現
+                8. 在「### 改寫範例」中，請使用正式的語氣，不使用EMOJI或網絡用語。
                 題目：${topic}
                 結構段重點：${focus}
                 情節大要：${plot}
                 寫作內容：${content}
                 教學筆記：${note}
-                點評語氣：${toneNote}`;
+                點評及建議語氣：${toneNote}`;
             }
 
             document.getElementById("commentResult").innerHTML = "陳SIR正在點評...";
