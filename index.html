@@ -225,6 +225,10 @@
         </div>
         <div id="writingArea">
             <div id="outlineTableArea"></div>
+            <div id="outlineButtons" style="display: none;">
+                <button class="save-btn" onclick="saveOutline()">儲存</button>
+                <button class="clear-btn" onclick="clearOutline()">清空</button>
+            </div>
             <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
             <label for="writingTone" id="writingToneLabel">選擇點評語氣：</label>
             <select id="writingTone">
@@ -233,10 +237,6 @@
             </select>
             <button onclick="submitWriting()">提交</button>
             <div id="commentResult"></div>
-        </div>
-        <div id="outlineButtons" style="display: none;">
-            <button class="save-btn" onclick="saveOutline()">儲存</button>
-            <button class="clear-btn" onclick="clearOutline()">清空</button>
         </div>
     </div>
 
@@ -352,68 +352,37 @@
 
         // 預設題目列表
         const topics = [
-            "旁觀",
-            "舞台",
-            "這件物件很是輕巧，卻讓我明白『但求無愧於心』的道理。",
-            "山頂",
-            "種子",
-            "根",
-            "疤痕",
+            "旁觀", "舞台", "這件物件很是輕巧，卻讓我明白『但求無愧於心』的道理。",
+            "山頂", "種子", "根", "疤痕",
             "今天，我不能參賽，只能坐在觀眾席上，但當時的所見所聞卻給予我嶄新的體會。",
             "從今以後，我不會再輕言放棄。",
-            "等候",
-            "我曾經努力嘗試，但最終仍是事與願違",
-            "回憶",
-            "徹夜難眠",
-            "彩虹",
+            "等候", "我曾經努力嘗試，但最終仍是事與願違",
+            "回憶", "徹夜難眠", "彩虹",
             "星空下，眼前的景象讓我想起那段往事，令我不禁歎了一口氣……",
-            "路牌",
-            "今學年最後悔的一件事",
-            "最令我感動的一句話",
-            "再試一次",
+            "路牌", "今學年最後悔的一件事",
+            "最令我感動的一句話", "再試一次",
             "今天再次在台上演奏，我已經脫胎換骨，不再是從前那個驕傲自滿的我了。",
             "每次經過這條街，看着街上的景物，我便感觸不已……",
-            "意外",
-            "鑰匙",
-            "錯過了的機會",
+            "意外", "鑰匙", "錯過了的機會",
             "那句話，我實在不該說……",
-            "色彩",
-            "煙火",
-            "藥",
-            "放下",
-            "追逐",
-            "原來，這只是一場誤會",
-            "缺憾",
-            "無悔的抉擇",
-            "勇氣",
-            "傘",
+            "色彩", "煙火", "藥", "放下", "追逐",
+            "原來，這只是一場誤會", "缺憾", "無悔的抉擇",
+            "勇氣", "傘",
             "自此之後，我明白到原來父母的愛總是體現在小事上。",
             "一件令我後悔不已的事",
-            "一次尷尬的經歷",
-            "沿途有你",
+            "一次尷尬的經歷", "沿途有你",
             "這一次，我實在感到無地自容。",
             "這一次，我明白到，原來幫助他人的同時，也幫助了自己。",
             "我的鄰居張先生是一位很苛刻的人，經常會為些『小事』而投訴他人。但今天我發現，他這樣做是有原因的……",
-            "獨處的一天",
-            "這一刻，我終於舒了一口氣。",
+            "獨處的一天", "這一刻，我終於舒了一口氣。",
             "記一次被誤解的經歷",
             "一次與別人言歸於好的經歷",
             "自此之後，我感到自己真的長大了。",
             "自此之後，我明白到幸福原來可以很簡單。",
             "記一次苦盡甘來的經歷。",
             "這件事讓我體會到喜出望外的滋味。",
-            "路標",
-            "足印",
-            "遺憾",
-            "鎖",
-            "面具",
-            "心結",
-            "門",
-            "影子",
-            "禁區",
-            "等待",
-            "根",
-            "最後，我選擇了放棄",
+            "路標", "足印", "遺憾", "鎖", "面具", "心結", "門", "影子", "禁區",
+            "等待", "根", "最後，我選擇了放棄",
             "自那一刻，我解開了心結",
             "自此之後，我明白猶豫會使人一事無成。",
             "原來我沒有忘記那一頓飯。",
@@ -430,20 +399,13 @@
             "失而復得",
             "這條街雖然老舊，但卻充滿人情味。",
             "這句話，我會記上一輩子。",
-            "門",
-            "來日方長",
-            "得不償失",
-            "隱藏",
-            "微笑以對",
+            "門", "來日方長", "得不償失", "隱藏", "微笑以對",
             "熱鬧過後，我卻感到失落。",
             "夢想看似不切實際，但其實很有意義",
             "夢想看似很有意義，其實不切實際",
             "今天我沒有帶手提電話外出，因而有不一樣的經歷和體會。",
             "今天發生了一件事情，當時我曾經想力陳己見，最後選擇了沉默。我認為沉默是必要的。",
-            "矛盾",
-            "未兌現的諾言",
-            "未寄出的信",
-            "距離",
+            "矛盾", "未兌現的諾言", "未寄出的信", "距離",
             "一場沒有失敗者的比賽",
             "一件發人深省的事",
             "我最想保留的一本相簿",
@@ -604,7 +566,12 @@
         // 保存課外書籍對話
         function saveBooksChat() {
             const chatHistoryDiv = document.getElementById("chatHistory");
-            localStorage.setItem("booksChatHistory", chatHistoryDiv.innerHTML);
+            localStorage.setItem("booksChatHistoryHTML", chatHistoryDiv.innerHTML);
+            localStorage.setItem("booksChatHistory", JSON.stringify(chatHistory));
+            localStorage.setItem("bookTitle", bookTitle);
+            localStorage.setItem("author", author);
+            localStorage.setItem("discussionQuestion", discussionQuestion);
+            localStorage.setItem("booksTone", booksTone);
             alert("對話已儲存");
         }
 
@@ -612,16 +579,38 @@
         function clearBooksChat() {
             if (confirm("確定要清空對話嗎？")) {
                 document.getElementById("chatHistory").innerHTML = "";
+                chatHistory = [];
+                localStorage.removeItem("booksChatHistoryHTML");
                 localStorage.removeItem("booksChatHistory");
+                localStorage.removeItem("bookTitle");
+                localStorage.removeItem("author");
+                localStorage.removeItem("discussionQuestion");
+                localStorage.removeItem("booksTone");
+                document.getElementById("bookTitle").value = "";
+                document.getElementById("author").value = "";
+                document.getElementById("discussionQuestion").value = "";
+                document.getElementById("booksTone").value = "casual";
             }
         }
 
         // 加載課外書籍對話
         function loadBooksChat() {
+            const savedHTML = localStorage.getItem("booksChatHistoryHTML");
+            if (savedHTML) {
+                document.getElementById("chatHistory").innerHTML = savedHTML;
+            }
             const savedChat = localStorage.getItem("booksChatHistory");
             if (savedChat) {
-                document.getElementById("chatHistory").innerHTML = savedChat;
+                chatHistory = JSON.parse(savedChat);
             }
+            bookTitle = localStorage.getItem("bookTitle") || "";
+            author = localStorage.getItem("author") || "";
+            discussionQuestion = localStorage.getItem("discussionQuestion") || "";
+            booksTone = localStorage.getItem("booksTone") || "casual";
+            document.getElementById("bookTitle").value = bookTitle;
+            document.getElementById("author").value = author;
+            document.getElementById("discussionQuestion").value = discussionQuestion;
+            document.getElementById("booksTone").value = booksTone;
         }
 
         // 切換閱讀功能
@@ -886,9 +875,7 @@
                     const focus = document.getElementById(focusId)?.value.trim() || "";
                     const plot = document.getElementById(plotId)?.value.trim() || "";
                     if (!focus || !plot) {
-                        alert("
-
-請填寫所有大綱表格");
+                        alert("請填寫所有大綱表格");
                         throw new Error("Incomplete outline");
                     }
                     return { part, focus, plot };
@@ -1179,6 +1166,9 @@
                 return;
             }
             chatHistory = [];
+            document.getElementById("chatHistory").innerHTML = "";
+            localStorage.removeItem("booksChatHistoryHTML");
+            localStorage.removeItem("booksChatHistory");
             addMessageToHistory("user", `書名：${bookTitle}\n作者：${author}\n討論問題：${discussionQuestion}`);
             document.getElementById("userInput").style.display = "block";
             document.getElementById("continueBtn").style.display = "block";
@@ -1195,7 +1185,7 @@
             } catch (error) {
                 console.error("開始討論時出錯:", error);
                 if (error.message === "所有 API 密鑰均無法使用") {
-                    updateLastAIMessage("今日 API 調用次數已用完，請明天再試。😓");
+                    updateLastAIMessage("今日 API 調用響應已用完，請明天再試。😓");
                 } else {
                     updateLastAIMessage("抱歉，陳SIR無法回應您的問題，請稍後再試。😅");
                 }
@@ -1362,7 +1352,7 @@
                 const comment = await callAPI(prompt);
                 const commentParts = comment.split("###").map(part => part.trim()).filter(part => part);
                 let commentHTML = "<h3>陳SIR點評：</h3><table>";
-                commentParts.forEach(part => {
+                commentParts双方.forEach(part => {
                     const [title, ...content] = part.split("\n").filter(line => line.trim());
                     commentHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
                 });
@@ -1429,6 +1419,7 @@
         // 頁面加載時初始化
         window.onload = function() {
             showContainer("writingContainer");
+            loadBooksChat();
         };
     </script>
 </body>
