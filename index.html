@@ -200,7 +200,7 @@
             <option value="大綱">大綱</option>
             <option value="敘事物象">敘事物象</option>
         </select>
-        <div id="outlineStructureArea">
+        <div id="outlineStructureArea" style="display: none;">
             <label for="structure">選擇大綱結構：</label>
             <select id="structure" onchange="generateOutlineTable()">
                 <option value="fourPart">起承轉合</option>
@@ -219,24 +219,24 @@
             <div id="customTopicArea" style="display: none;"></div>
             <div id="topicResult"></div>
         </div>
-        <div id="narrativeElementsArea">
+        <div id="narrativeElementsArea" style="display: none;">
             <label for="narrativeElements">請輸入您的取材或故事背景：</label>
             <textarea id="narrativeElements" rows="5" placeholder="例如：故事背景、人物設定、取材等..."></textarea>
         </div>
         <div id="writingArea">
             <div id="outlineTableArea"></div>
-            <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..."></textarea>
-            <label for="writingTone" id="writingToneLabel">選擇點評語氣：</label>
-            <select id="writingTone">
+            <div id="outlineButtons" style="display: none;">
+                <button class="save-btn" onclick="saveOutline()">儲存</button>
+                <button class="clear-btn" onclick="clearOutline()">清空</button>
+            </div>
+            <textarea id="writingContent" rows="10" placeholder="請在此輸入您的寫作內容（「片段描寫」使用）..." style="display: none;"></textarea>
+            <label for="writingTone" id="writingToneLabel" style="display: none;">選擇點評語氣：</label>
+            <select id="writingTone" style="display: none;">
                 <option value="serious">嚴肅正經</option>
                 <option value="chen">陳SIR語氣</option>
             </select>
             <button onclick="submitWriting()">提交</button>
             <div id="commentResult"></div>
-        </div>
-        <div id="outlineButtons" style="display: none;">
-            <button class="save-btn" onclick="saveOutline()">儲存</button>
-            <button class="clear-btn" onclick="clearOutline()">清空</button>
         </div>
     </div>
 
@@ -296,13 +296,13 @@
             <option value="comment">點評</option>
             <option value="guide">指引</option>
         </select>
-        <div id="expandTopicSelectionArea">
+        <div id="expandTopicSelectionArea" style="display: none;">
             <label for="expandTopicOption">選擇題目方式：</label>
             <select id="expandTopicOption" onchange="toggleExpandTopicInput()">
                 <option value="generate">生成題目</option>
                 <option value="custom">自訂題目</option>
             </select>
-            <div id="expandGenerateTopicArea">
+            <div id="expandGenerateTopicArea" style="display: none;">
                 <button onclick="generateExpandTopic()">生成題目</button>
             </div>
             <div id="expandCustomTopicArea" style="display: none;">
@@ -315,19 +315,19 @@
             </div>
             <div id="expandTopicResult"></div>
         </div>
-        <div id="expandWritingArea">
+        <div id="expandWritingArea" style="display: none;">
             <label for="expandContent">整合拓展（最多180字）：</label>
             <textarea id="expandContent" rows="5" placeholder="請在此輸入整合拓展內容..." oninput="updateCharCount()"></textarea>
             <p id="charCount">剩餘字數：180</p>
-            <label for="expandTone" id="expandToneLabel">選擇點評語氣：</label>
-            <select id="expandTone">
+            <label for="expandTone" id="expandToneLabel" style="display: none;">選擇點評語氣：</label>
+            <select id="expandTone" style="display: none;">
                 <option value="serious">嚴肅正經</option>
                 <option value="chen">陳SIR語氣</option>
             </select>
             <button onclick="submitExpand()">提交</button>
             <div id="expandCommentResult"></div>
         </div>
-        <div id="expandGuideArea">
+        <div id="expandGuideArea" style="display: none;">
             <table>
                 <tr><th>題目</th><td><input type="text" id="expandGuideTitle" placeholder="請輸入題目"></td></tr>
                 <tr><th>主題句</th><td><textarea id="expandGuideTheme" rows="2" placeholder="請輸入主題句"></textarea></td></tr>
@@ -527,6 +527,7 @@
                 outlineStructureArea.style.display = "block";
                 narrativeElementsArea.style.display = "none";
                 writingContent.style.display = "none";
+                outlineTableArea.style.display = "block";
                 generateOutlineTable();
                 writingToneLabel.style.display = "block";
                 writingTone.style.display = "block";
@@ -535,7 +536,7 @@
                 outlineStructureArea.style.display = "none";
                 narrativeElementsArea.style.display = "block";
                 writingContent.style.display = "none";
-                outlineTableArea.innerHTML = "";
+                outlineTableArea.style.display = "none";
                 writingToneLabel.style.display = "none";
                 writingTone.style.display = "none";
                 outlineButtons.style.display = "none";
@@ -543,7 +544,7 @@
                 outlineStructureArea.style.display = "none";
                 narrativeElementsArea.style.display = "none";
                 writingContent.style.display = "block";
-                outlineTableArea.innerHTML = "";
+                outlineTableArea.style.display = "none";
                 writingToneLabel.style.display = "block";
                 writingTone.style.display = "block";
                 outlineButtons.style.display = "none";
@@ -914,7 +915,7 @@
             const note = categories[writingType].commentNote;
 
             let prompt = "";
-            if (writingType === "大綱") {
+            if (writingType === "大�纲") {
                 prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
                 1. 在「=== 點評及建議 ===」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
                 2. 在「=== 改寫後的大綱 ===」部分，為每個結構段提供改寫後的「結構段重點」和「情節大要」。使用「[part]」標記每個結構段的開始，然後在下一行「結構段重點：」後跟內容，再下一行「情節大要：」後跟內容。結構段數量必須與用戶選擇的大綱結構一致（起承轉合為4段，三線為5段：起、一線、二線、三線、合）。
@@ -1262,7 +1263,7 @@
                 const data = dataMatch.replace("抄錄資料：", "").trim();
                 if (!theme || !data) throw new Error("生成內容不完整");
                 document.getElementById("expandTopicResult").innerHTML = `
-                    主題句：<strong                <strong>${theme}</strong><br>
+                    主題句：<strong>${theme}</strong><br>
                     抄錄資料：<strong>${data}</strong>
                 `;
                 localStorage.setItem("expandCurrentTheme", theme);
