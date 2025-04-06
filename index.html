@@ -222,6 +222,10 @@
             <button onclick="submitWriting()">提交</button>
             <div id="commentResult"></div>
         </div>
+        <div id="outlineButtons" style="display: none;">
+            <button onclick="saveOutline()">儲存大綱</button>
+            <button onclick="clearOutline()">清空大綱</button>
+        </div>
     </div>
 
     <!-- 閱讀容器 -->
@@ -254,6 +258,11 @@
     <div id="booksContainer" class="box">
         <h2>課外書籍討論</h2>
         <p>請在下方填寫書名、作者和討論問題，開始與陳SIR對話：</p>
+        <label for="booksTone">選擇語氣：</label>
+        <select id="booksTone">
+            <option value="serious">嚴肅正經</option>
+            <option value="relaxed">輕鬆活潑</option>
+        </select>
         <input type="text" id="bookTitle" placeholder="書名">
         <input type="text" id="author" placeholder="作者">
         <textarea id="discussionQuestion" rows="3" placeholder="討論問題"></textarea>
@@ -261,6 +270,8 @@
         <div id="chatHistory"></div>
         <textarea id="userInput" rows="3" placeholder="請輸入您的回應..." style="display: none;"></textarea>
         <button id="continueBtn" onclick="continueDiscussion()" style="display: none;">繼續討論</button>
+        <button onclick="saveChat()">儲存對話</button>
+        <button onclick="clearChat()">清空對話</button>
     </div>
 
     <!-- 整合拓展容器 -->
@@ -327,107 +338,30 @@
 
         // 預設題目列表
         const topics = [
-            "旁觀",
-            "舞台",
-            "這件物件很是輕巧，卻讓我明白『但求無愧於心』的道理。",
-            "山頂",
-            "種子",
-            "根",
-            "疤痕",
-            "今天，我不能參賽，只能坐在觀眾席上，但當時的所見所聞卻給予我嶄新的體會。",
-            "從今以後，我不會再輕言放棄。",
-            "等候",
-            "我曾經努力嘗試，但最終仍是事與願違",
-            "回憶",
-            "徹夜難眠",
-            "彩虹",
-            "星空下，眼前的景象讓我想起那段往事，令我不禁歎了一口氣……",
-            "路牌",
-            "今學年最後悔的一件事",
-            "最令我感動的一句話",
-            "再試一次",
-            "今天再次在台上演奏，我已經脫胎換骨，不再是從前那個驕傲自滿的我了。",
-            "每次經過這條街，看着街上的景物，我便感觸不已……",
-            "意外",
-            "鑰匙",
-            "錯過了的機會",
-            "那句話，我實在不該說……",
-            "色彩",
-            "煙火",
-            "藥",
-            "放下",
-            "追逐",
-            "原來，這只是一場誤會",
-            "缺憾",
-            "無悔的抉擇",
-            "勇氣",
-            "傘",
-            "自此之後，我明白到原來父母的愛總是體現在小事上。",
-            "一件令我後悔不已的事",
-            "一次尷尬的經歷",
-            "沿途有你",
-            "這一次，我實在感到無地自容。",
-            "這一次，我明白到，原來幫助他人的同時，也幫助了自己。",
+            "旁觀", "舞台", "這件物件很是輕巧，卻讓我明白『但求無愧於心』的道理。", "山頂", "種子", "根", "疤痕",
+            "今天，我不能參賽，只能坐在觀眾席上，但當時的所見所聞卻給予我嶄新的體會。", "從今以後，我不會再輕言放棄。",
+            "等候", "我曾經努力嘗試，但最終仍是事與願違", "回憶", "徹夜難眠", "彩虹",
+            "星空下，眼前的景象讓我想起那段往事，令我不禁歎了一口氣……", "路牌", "今學年最後悔的一件事",
+            "最令我感動的一句話", "再試一次", "今天再次在台上演奏，我已經脫胎換骨，不再是從前那個驕傲自滿的我了。",
+            "每次經過這條街，看着街上的景物，我便感觸不已……", "意外", "鑰匙", "錯過了的機會", "那句話，我實在不該說……",
+            "色彩", "煙火", "藥", "放下", "追逐", "原來，這只是一場誤會", "缺憾", "無悔的抉擇", "勇氣", "傘",
+            "自此之後，我明白到原來父母的愛總是體現在小事上。", "一件令我後悔不已的事", "一次尷尬的經歷", "沿途有你",
+            "這一次，我實在感到無地自容。", "這一次，我明白到，原來幫助他人的同時，也幫助了自己。",
             "我的鄰居張先生是一位很苛刻的人，經常會為些『小事』而投訴他人。但今天我發現，他這樣做是有原因的……",
-            "獨處的一天",
-            "這一刻，我終於舒了一口氣。",
-            "記一次被誤解的經歷",
-            "一次與別人言歸於好的經歷",
-            "自此之後，我感到自己真的長大了。",
-            "自此之後，我明白到幸福原來可以很簡單。",
-            "記一次苦盡甘來的經歷。",
-            "這件事讓我體會到喜出望外的滋味。",
-            "路標",
-            "足印",
-            "遺憾",
-            "鎖",
-            "面具",
-            "心結",
-            "門",
-            "影子",
-            "禁區",
-            "等待",
-            "根",
-            "最後，我選擇了放棄",
-            "自那一刻，我解開了心結",
-            "自此之後，我明白猶豫會使人一事無成。",
-            "原來我沒有忘記那一頓飯。",
-            "我在大自然之中找到快樂。",
-            "熱鬧過後，我卻感到失落。",
-            "看著逐漸遠去的背影，我感到很內疚。",
-            "今天我流淚了，但我並非感到難過。",
-            "自此之後，我找到了動力",
-            "經歷了這次風波，我長大了。",
-            "經過這件事，我才明白到一心是我的知己，是真正了解我的人。",
-            "自此之後，我學會放下無謂的面子。",
-            "這一次，我再沒有遺憾",
-            "重遊舊地所見有感",
-            "失而復得",
-            "這條街雖然老舊，但卻充滿人情味。",
-            "這句話，我會記上一輩子。",
-            "門",
-            "來日方長",
-            "得不償失",
-            "隱藏",
-            "微笑以對",
-            "熱鬧過後，我卻感到失落。",
-            "夢想看似不切實際，但其實很有意義",
-            "夢想看似很有意義，其實不切實際",
+            "獨處的一天", "這一刻，我終於舒了一口氣。", "記一次被誤解的經歷", "一次與別人言歸於好的經歷",
+            "自此之後，我感到自己真的長大了。", "自此之後，我明白到幸福原來可以很簡單。", "記一次苦盡甘來的經歷。",
+            "這件事讓我體會到喜出望外的滋味。", "路標", "足印", "遺憾", "鎖", "面具", "心結", "門", "影子", "禁區",
+            "等待", "根", "最後，我選擇了放棄", "自那一刻，我解開了心結", "自此之後，我明白猶豫會使人一事無成。",
+            "原來我沒有忘記那一頓飯。", "我在大自然之中找到快樂。", "熱鬧過後，我卻感到失落。",
+            "看著逐漸遠去的背影，我感到很內疚。", "今天我流淚了，但我並非感到難過。", "自此之後，我找到了動力",
+            "經歷了這次風波，我長大了。", "經過這件事，我才明白到一心是我的知己，是真正了解我的人。",
+            "自此之後，我學會放下無謂的面子。", "這一次，我再沒有遺憾", "重遊舊地所見有感", "失而復得",
+            "這條街雖然老舊，但卻充滿人情味。", "這句話，我會記上一輩子。", "門", "來日方長", "得不償失", "隱藏",
+            "微笑以對", "熱鬧過後，我卻感到失落。", "夢想看似不切實際，但其實很有意義", "夢想看似很有意義，其實不切實際",
             "今天我沒有帶手提電話外出，因而有不一樣的經歷和體會。",
-            "今天發生了一件事情，當時我曾經想力陳己見，最後選擇了沉默。我認為沉默是必要的。",
-            "矛盾",
-            "未兌現的諾言",
-            "未寄出的信",
-            "距離",
-            "一場沒有失敗者的比賽",
-            "一件發人深省的事",
-            "我最想保留的一本相簿",
-            "我最想尋回的一件玩具",
-            "無愧的抉擇",
-            "不能掉下的眼淚",
-            "無畏的探索",
-            "一次令我百感交集的聚餐",
-            "如願以償"
+            "今天發生了一件事情，當時我曾經想力陳己見，最後選擇了沉默。我認為沉默是必要的。", "矛盾", "未兌現的諾言",
+            "未寄出的信", "距離", "一場沒有失敗者的比賽", "一件發人深省的事", "我最想保留的一本相簿",
+            "我最想尋回的一件玩具", "無愧的抉擇", "不能掉下的眼淚", "無畏的探索", "一次令我百感交集的聚餐", "如願以償"
         ];
 
         let lastTopic = localStorage.getItem("lastTopic") || "";
@@ -448,7 +382,8 @@
                 guideNote: "必須用繁體字。僅生成三道問題以引導用家回答閱讀篇章的問題，問題針對題目，引導思考文本內容、結構和主題，不含其他內容。生成15個由兩個字構成的答題詞匯，詞匯需與答題方向相關且不重複，旨在令用家在答題時有更豐富的詞匯，確保不能有「|--------|」及「| 詞匯 |」，排版整齊。輸出分為兩個部分：### 答題指引、### 答題詞匯。答題指引以問題形式呈現，每個問題占一行。答題詞匯以表格形式呈現，每個詞占一行。此外，假如整體表現真的不錯，沒有大問題，在點評時稱讚即可，不必吹毛求疵地批評。"
             },
             "課外書籍": {
-                chatNote: "必須用繁體字，多用EMOJI，偶爾可以用一下網絡用語。"
+                chatNoteRelaxed: "必須用繁體字，多用EMOJI，偶爾可以用一下網絡用語。",
+                chatNoteSerious: "必須用繁體字，使用貼近日常生活的用語，不使用網絡用語和EMOJI。"
             },
             "整合拓展": {
                 topicPrompt: "請生成一道適合中學生練習整合拓展的題目，題目應包含主題句（主題句絕對不能是問句）和抄錄資料（抄錄資料必須不包含任何數據，不得包含引號或人物對話，而且不得超過30字），並符合以下文類和取材範圍。文類：書信、評論、建議書、演講辭、報告、專題文章。取材範圍：例如環保、社會、文化、學習等活動，但出題請多元化一點，亦不要每次都是與好處相關的，否則用家多生成幾次，便會遇到類似的題目。要求：1. 主題句簡潔，20字以內。2. 抄錄資料為一段文字，不超過100字。3. 輸出格式為：主題句：...\n抄錄資料：...\n4. 內容簡潔明了，避免冗長。5. 題目多樣化，避免重複。",
@@ -466,6 +401,7 @@
         });
         document.getElementById("booksBtn").addEventListener("click", function() {
             showContainer("booksContainer");
+            loadChatHistory();
         });
         document.getElementById("expandBtn").addEventListener("click", function() {
             showContainer("expandContainer");
@@ -477,7 +413,10 @@
             document.getElementById("booksContainer").style.display = "none";
             document.getElementById("expandContainer").style.display = "none";
             document.getElementById(containerId).style.display = "block";
-            if (containerId === "writingContainer") toggleWritingType();
+            if (containerId === "writingContainer") {
+                toggleWritingType();
+                loadOutline();
+            }
             if (containerId === "readingContainer") toggleReadingFunction();
             if (containerId === "expandContainer") toggleExpandFunction();
         }
@@ -491,6 +430,7 @@
             const outlineTableArea = document.getElementById("outlineTableArea");
             const writingToneLabel = document.getElementById("writingToneLabel");
             const writingTone = document.getElementById("writingTone");
+            const outlineButtons = document.getElementById("outlineButtons");
 
             if (writingType === "大綱") {
                 outlineStructureArea.style.display = "block";
@@ -499,6 +439,7 @@
                 generateOutlineTable();
                 writingToneLabel.style.display = "block";
                 writingTone.style.display = "block";
+                outlineButtons.style.display = "block";
             } else if (writingType === "敘事物象") {
                 outlineStructureArea.style.display = "none";
                 narrativeElementsArea.style.display = "block";
@@ -506,6 +447,7 @@
                 outlineTableArea.innerHTML = "";
                 writingToneLabel.style.display = "none";
                 writingTone.style.display = "none";
+                outlineButtons.style.display = "none";
             } else {
                 outlineStructureArea.style.display = "none";
                 narrativeElementsArea.style.display = "none";
@@ -513,6 +455,7 @@
                 outlineTableArea.innerHTML = "";
                 writingToneLabel.style.display = "block";
                 writingTone.style.display = "block";
+                outlineButtons.style.display = "none";
             }
             toggleTopicInput();
         }
@@ -757,6 +700,55 @@
             });
             tableHTML += "</table>";
             document.getElementById("outlineTableArea").innerHTML = tableHTML;
+            loadOutline();
+        }
+
+        // 儲存大綱
+        function saveOutline() {
+            const structure = document.getElementById("structure").value;
+            const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
+            const outlineData = {};
+            parts.forEach((part, index) => {
+                const focusId = structure + "Focus" + (index + 1);
+                const plotId = structure + "Plot" + (index + 1);
+                outlineData[focusId] = document.getElementById(focusId).value;
+                outlineData[plotId] = document.getElementById(plotId).value;
+            });
+            localStorage.setItem("outlineStructure", structure);
+            localStorage.setItem("outlineData", JSON.stringify(outlineData));
+            alert("大綱已儲存");
+        }
+
+        // 載入大綱
+        function loadOutline() {
+            const structure = localStorage.getItem("outlineStructure");
+            const outlineData = JSON.parse(localStorage.getItem("outlineData"));
+            if (structure && outlineData) {
+                document.getElementById("structure").value = structure;
+                generateOutlineTable();
+                const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
+                parts.forEach((part, index) => {
+                    const focusId = structure + "Focus" + (index + 1);
+                    const plotId = structure + "Plot" + (index + 1);
+                    if (outlineData[focusId]) document.getElementById(focusId).value = outlineData[focusId];
+                    if (outlineData[plotId]) document.getElementById(plotId).value = outlineData[plotId];
+                });
+            }
+        }
+
+        // 清空大綱
+        function clearOutline() {
+            const structure = document.getElementById("structure").value;
+            const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
+            parts.forEach((part, index) => {
+                const focusId = structure + "Focus" + (index + 1);
+                const plotId = structure + "Plot" + (index + 1);
+                document.getElementById(focusId).value = "";
+                document.getElementById(plotId).value = "";
+            });
+            localStorage.removeItem("outlineStructure");
+            localStorage.removeItem("outlineData");
+            alert("大綱已清空");
         }
 
         // 提交寫作內容
@@ -1058,8 +1050,10 @@
         let bookTitle = "";
         let author = "";
         let discussionQuestion = "";
+        let booksTone = "relaxed";
 
         async function startDiscussion() {
+            booksTone = document.getElementById("booksTone").value;
             bookTitle = document.getElementById("bookTitle").value.trim();
             author = document.getElementById("author").value.trim();
             discussionQuestion = document.getElementById("discussionQuestion").value.trim();
@@ -1075,7 +1069,8 @@
         }
 
         async function sendInitialMessage() {
-            const prompt = `我是一位高中生，正在閱讀《${bookTitle}》，作者是${author}。我想討論的問題是：${discussionQuestion}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，永遠不要列點回應，也不要提及你會追問我。請用完整句子回應。教學筆記：${categories["課外書籍"].chatNote}`;
+            const toneNote = booksTone === "relaxed" ? categories["課外書籍"].chatNoteRelaxed : categories["課外書籍"].chatNoteSerious;
+            const prompt = `我是一位高中生，正在閱讀《${bookTitle}》，作者是${author}。我想討論的問題是：${discussionQuestion}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，永遠不要列點回應，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
             addMessageToHistory("ai", "陳SIR正在回應...");
             try {
                 const aiResponse = await callAPI(prompt);
@@ -1083,9 +1078,9 @@
             } catch (error) {
                 console.error("開始討論時出錯:", error);
                 if (error.message === "所有 API 密鑰均無法使用") {
-                    updateLastAIMessage("今日 API 調用次數已用完，請明天再試。😓");
+                    updateLastAIMessage("今日 API 調用次數已用完，請明天再試。");
                 } else {
-                    updateLastAIMessage("抱歉，陳SIR無法回應您的問題，請稍後再試。😅");
+                    updateLastAIMessage("抱歉，陳SIR無法回應您的問題，請稍後再試。");
                 }
             }
         }
@@ -1097,7 +1092,8 @@
                 return;
             }
             addMessageToHistory("user", userInput);
-            const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。教學筆記：${categories["課外書籍"].chatNote}`;
+            const toneNote = booksTone === "relaxed" ? categories["課外書籍"].chatNoteRelaxed : categories["課外書籍"].chatNoteSerious;
+            const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
             addMessageToHistory("ai", "陳SIR正在回應...");
             try {
                 const aiResponse = await callAPI(prompt);
@@ -1105,9 +1101,9 @@
             } catch (error) {
                 console.error("繼續討論時出錯:", error);
                 if (error.message === "所有 API 密鑰均無法使用") {
-                    updateLastAIMessage("今日 API 調用次數已用完，請明天再試。😓");
+                    updateLastAIMessage("今日 API 調用次數已用完，請明天再試。");
                 } else {
-                    updateLastAIMessage("抱歉，陳SIR無法回應您的問題，請稍後再試。😅");
+                    updateLastAIMessage("抱歉，陳SIR無法回應您的問題，請稍後再試。");
                 }
             }
             document.getElementById("userInput").value = "";
@@ -1135,6 +1131,62 @@
             } else {
                 addMessageToHistory("ai", newMessage);
             }
+        }
+
+        function saveChat() {
+            localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+            localStorage.setItem("bookTitle", bookTitle);
+            localStorage.setItem("author", author);
+            localStorage.setItem("discussionQuestion", discussionQuestion);
+            localStorage.setItem("booksTone", booksTone);
+            alert("對話已儲存");
+        }
+
+        function loadChatHistory() {
+            const savedChatHistory = localStorage.getItem("chatHistory");
+            const savedBookTitle = localStorage.getItem("bookTitle");
+            const savedAuthor = localStorage.getItem("author");
+            const savedDiscussionQuestion = localStorage.getItem("discussionQuestion");
+            const savedBooksTone = localStorage.getItem("booksTone");
+            if (savedChatHistory && savedBookTitle && savedAuthor && savedDiscussionQuestion && savedBooksTone) {
+                chatHistory = JSON.parse(savedChatHistory);
+                bookTitle = savedBookTitle;
+                author = savedAuthor;
+                discussionQuestion = savedDiscussionQuestion;
+                booksTone = savedBooksTone;
+                document.getElementById("bookTitle").value = bookTitle;
+                document.getElementById("author").value = author;
+                document.getElementById("discussionQuestion").value = discussionQuestion;
+                document.getElementById("booksTone").value = booksTone;
+                const chatHistoryDiv = document.getElementById("chatHistory");
+                chatHistoryDiv.innerHTML = "";
+                chatHistory.forEach(({ sender, message }) => {
+                    const messageDiv = document.createElement("div");
+                    messageDiv.className = sender === "user" ? "user-message" : "ai-message";
+                    messageDiv.textContent = message;
+                    chatHistoryDiv.appendChild(messageDiv);
+                });
+                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+                document.getElementById("userInput").style.display = "block";
+                document.getElementById("continueBtn").style.display = "block";
+            }
+        }
+
+        function clearChat() {
+            chatHistory = [];
+            document.getElementById("chatHistory").innerHTML = "";
+            document.getElementById("userInput").value = "";
+            document.getElementById("userInput").style.display = "none";
+            document.getElementById("continueBtn").style.display = "none";
+            document.getElementById("bookTitle").value = "";
+            document.getElementById("author").value = "";
+            document.getElementById("discussionQuestion").value = "";
+            localStorage.removeItem("chatHistory");
+            localStorage.removeItem("bookTitle");
+            localStorage.removeItem("author");
+            localStorage.removeItem("discussionQuestion");
+            localStorage.removeItem("booksTone");
+            alert("對話已清空");
         }
 
         // 生成整合拓展題目
