@@ -440,62 +440,65 @@
         }
 
         // 切換寫作類型
-        function toggleWritingType() {
-            const writingType = document.getElementById("writingType").value;
-            const outlineStructureArea = document.getElementById("outlineStructureArea");
-            const narrativeElementsArea = document.getElementById("narrativeElementsArea");
-            const writingContent = document.getElementById("writingContent");
-            const outlineTableArea = document.getElementById("outlineTableArea");
-            const writingToneLabel = document.getElementById("writingToneLabel");
-            const writingTone = document.getElementById("writingTone");
-            const outlineButtons = document.getElementById("outlineButtons");
+function toggleWritingType() {
+    const writingType = document.getElementById("writingType").value;
+    const outlineStructureArea = document.getElementById("outlineStructureArea");
+    const narrativeElementsArea = document.getElementById("narrativeElementsArea");
+    const writingContent = document.getElementById("writingContent");
+    const outlineTableArea = document.getElementById("outlineTableArea");
+    const writingToneLabel = document.getElementById("writingToneLabel");
+    const writingTone = document.getElementById("writingTone");
+    const outlineButtons = document.getElementById("outlineButtons");
 
-            if (writingType === "大綱") {
-                outlineStructureArea.style.display = "block";
-                narrativeElementsArea.style.display = "none";
-                writingContent.style.display = "none";
-                outlineTableArea.style.display = "block";
-                generateOutlineTable();
-                writingToneLabel.style.display = "block";
-                writingTone.style.display = "block";
-                outlineButtons.style.display = "block";
-            } else if (writingType === "敘事物象") {
-                outlineStructureArea.style.display = "none";
-                narrativeElementsArea.style.display = "block";
-                writingContent.style.display = "none";
-                outlineTableArea.innerHTML = "";
-                outlineTableArea.style.display = "none";
-                writingToneLabel.style.display = "none";
-                writingTone.style.display = "none";
-                outlineButtons.style.display = "none";
-            } else { // 片段描寫
-                outlineStructureArea.style.display = "none";
-                narrativeElementsArea.style.display = "none";
-                writingContent.style.display = "block";
-                outlineTableArea.innerHTML = "";
-                outlineTableArea.style.display = "none";
-                writingToneLabel.style.display = "block";
-                writingTone.style.display = "block";
-                outlineButtons.style.display = "none";
-            }
-            toggleTopicInput();
-        }
+    if (writingType === "大綱") {
+        outlineStructureArea.style.display = "block";
+        narrativeElementsArea.style.display = "none";
+        writingContent.style.display = "none";
+        outlineTableArea.style.display = "block";
+        generateOutlineTable();
+        loadOutline(); // 添加調用以確保切換時加載儲存內容
+        writingToneLabel.style.display = "block";
+        writingTone.style.display = "block";
+        outlineButtons.style.display = "block";
+    } else if (writingType === "敘事物象") {
+        outlineStructureArea.style.display = "none";
+        narrativeElementsArea.style.display = "block";
+        writingContent.style.display = "none";
+        outlineTableArea.innerHTML = "";
+        outlineTableArea.style.display = "none";
+        writingToneLabel.style.display = "none";
+        writingTone.style.display = "none";
+        outlineButtons.style.display = "none";
+    } else { // 片段描寫
+        outlineStructureArea.style.display = "none";
+        narrativeElementsArea.style.display = "none";
+        writingContent.style.display = "block";
+        outlineTableArea.innerHTML = "";
+        outlineTableArea.style.display = "none";
+        writingToneLabel.style.display = "block";
+        writingTone.style.display = "block";
+        outlineButtons.style.display = "none";
+    }
+    toggleTopicInput();
+}
 
-        // 保存大綱
-        function saveOutline() {
-            const structure = document.getElementById("structure").value;
-            const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
-            const outlineData = parts.map((part, index) => {
-                const focusId = structure + "Focus" + (index + 1);
-                const plotId = structure + "Plot" + (index + 1);
-                const focus = document.getElementById(focusId)?.value.trim() || "";
-                const plot = document.getElementById(plotId)?.value.trim() || "";
-                return { part, focus, plot };
-            });
-            localStorage.setItem("outlineData", JSON.stringify(outlineData));
-            localStorage.setItem("outlineStructure", structure);
-            alert("大綱已儲存");
-        }
+       // 保存大綱
+function saveOutline() {
+    const structure = document.getElementById("structure").value;
+    const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
+    const outlineData = parts.map((part, index) => {
+        const focusId = structure + "Focus" + (index + 1);
+        const plotId = structure + "Plot" + (index + 1);
+        const focus = document.getElementById(focusId)?.value.trim() || "";
+        const plot = document.getElementById(plotId)?.value.trim() || "";
+        return { part, focus, plot };
+    });
+    console.log("Saving outline - Structure:", structure, "Data:", outlineData); // 添加日誌
+    localStorage.setItem("outlineData", JSON.stringify(outlineData));
+    localStorage.setItem("outlineStructure", structure);
+    console.log("Outline saved to localStorage"); // 添加日誌
+    alert("大綱已儲存");
+}
 
         // 清空大綱
         function clearOutline() {
@@ -514,22 +517,30 @@
         }
 
         // 加載大綱
-        function loadOutline() {
-            const savedStructure = localStorage.getItem("outlineStructure");
-            if (savedStructure) {
-                document.getElementById("structure").value = savedStructure;
-                generateOutlineTable();
-                const savedData = JSON.parse(localStorage.getItem("outlineData"));
-                if (savedData) {
-                    savedData.forEach((item, index) => {
-                        const focusId = savedStructure + "Focus" + (index + 1);
-                        const plotId = savedStructure + "Plot" + (index + 1);
-                        if (document.getElementById(focusId)) document.getElementById(focusId).value = item.focus;
-                        if (document.getElementById(plotId)) document.getElementById(plotId).value = item.plot;
-                    });
-                }
-            }
+function loadOutline() {
+    const savedStructure = localStorage.getItem("outlineStructure");
+    const savedData = localStorage.getItem("outlineData");
+    console.log("Loading outline - Structure:", savedStructure, "Data:", savedData); // 添加日誌
+    if (savedStructure && savedData) {
+        document.getElementById("structure").value = savedStructure;
+        generateOutlineTable();
+        try {
+            const parsedData = JSON.parse(savedData);
+            parsedData.forEach((item, index) => {
+                const focusId = savedStructure + "Focus" + (index + 1);
+                const plotId = savedStructure + "Plot" + (index + 1);
+                const focusElement = document.getElementById(focusId);
+                const plotElement = document.getElementById(plotId);
+                if (focusElement) focusElement.value = item.focus;
+                else console.error("Focus element not found:", focusId); // 添加錯誤日誌
+                if (plotElement) plotElement.value = item.plot;
+                else console.error("Plot element not found:", plotId); // 添加錯誤日誌
+            });
+        } catch (e) {
+            console.error("Error parsing outlineData:", e); // 添加錯誤處理
         }
+    }
+}
 
         // 保存課外書籍對話
         function saveBooksChat() {
