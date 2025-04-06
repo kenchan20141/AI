@@ -275,8 +275,8 @@
         <textarea id="discussionQuestion" rows="3" placeholder="討論問題"></textarea>
         <label for="booksTone">選擇語氣：</label>
         <select id="booksTone">
-            <option value="casual">輕鬆活潑</option>
             <option value="serious">嚴肅正經</option>
+            <option value="casual">輕鬆活潑</option>
         </select>
         <button onclick="startDiscussion()">開始討論</button>
         <div id="chatHistory"></div>
@@ -1197,7 +1197,7 @@ function loadOutline() {
             }
             addMessageToHistory("user", userInput);
             let toneNote = booksTone === "serious" ? categories["課外書籍"].seriousChatNote : categories["課外書籍"].chatNote;
-            const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
+            const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，必須詳細分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
             addMessageToHistory("ai", "陳SIR正在回應...");
             try {
                 const aiResponse = await callAPI(prompt);
