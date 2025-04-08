@@ -858,19 +858,19 @@
         }
 
         // 新增結構段
-        function addArgumentStructureSegment() {
-            const table = document.getElementById("argumentOutlineTable");
-            const rowCount = table.rows.length;
-            const newRowIndex = rowCount - 1; // 在「合」之前插入
-            const newRow = table.insertRow(newRowIndex);
-            const cell1 = newRow.insertCell(0);
-            const cell2 = newRow.insertCell(1);
-            const cell3 = newRow.insertCell(2);
-            const segmentNumber = rowCount - 2; // 從「結構段一」開始
-            cell1.innerHTML = `結構段${segmentNumber + 1}`;
-            cell2.innerHTML = `<textarea id="argumentPoint${newRowIndex - 1}" rows="3"></textarea>`;
-            cell3.innerHTML = `<textarea id="argumentEvidence${newRowIndex - 1}" rows="3"></textarea>`;
-        }
+      function addArgumentStructureSegment() {
+    const table = document.getElementById("argumentOutlineTable");
+    const rowCount = table.rows.length;
+    const newRowIndex = rowCount - 1; // 在「合」之前插入
+    const newRow = table.insertRow(newRowIndex);
+    const cell1 = newRow.insertCell(0);
+    const cell2 = newRow.insertCell(1);
+    const cell3 = newRow.insertCell(2);
+    const segmentNumber = rowCount - 2; // 從「結構段一」開始計數
+    cell1.innerText = `結構段${segmentNumber + 1}`; // 確保名稱為「結構段四」、「結構段五」等
+    cell2.innerHTML = `<textarea id="argumentPoint${newRowIndex - 1}" rows="3"></textarea>`;
+    cell3.innerHTML = `<textarea id="argumentEvidence${newRowIndex - 1}" rows="3"></textarea>`;
+}
 
         // 保存議論大綱
         function saveArgumentOutline() {
@@ -901,7 +901,7 @@
         }
 
         // 提交議論大綱
-  async function submitArgumentOutline() {
+async function submitArgumentOutline() {
     const topic = localStorage.getItem("argumentCurrentTopic");
     if (!topic) {
         alert("請先設定題目");
@@ -914,12 +914,8 @@
         const part = rows[i].cells[0].innerText;
         const pointTextarea = rows[i].cells[1].querySelector("textarea");
         const evidenceTextarea = rows[i].cells[2].querySelector("textarea");
-        if (!pointTextarea || !evidenceTextarea) {
-            alert("表格結構錯誤");
-            return;
-        }
-        const point = pointTextarea.value.trim();
-        const evidence = evidenceTextarea.value.trim();
+        const point = pointTextarea ? pointTextarea.value.trim() : "";
+        const evidence = evidenceTextarea ? evidenceTextarea.value.trim() : "";
         if (!point || !evidence) {
             alert("請填寫所有大綱表格");
             return;
@@ -929,9 +925,10 @@
     const tone = document.getElementById("argumentOutlineTone").value;
     let toneNote = tone === "chen" ? "請用輕鬆隨意的語氣進行點評和建議，多用EMOJI，偶爾使用網絡用語。" : "請用嚴肅正經的語氣進行點評和建議。";
     const note = categories["議論"].outlineCommentNote;
+    const partsList = outlineData.map(item => item.part).join(", ");
     const prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
-    1. 在「### 點評及建議」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
-    2. 在「### 改寫後的大綱」部分，為每個結構段提供改寫後的「論點」和「論據及論證」。使用「[part]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。
+    1. 在「### 點評及建議」部分，為以下每個結構段提供點評和建議：${partsList}。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
+    2. 在「### 改寫後的大綱」部分，為以下每個結構段提供改寫後的「論點」和「論據及論證」：${partsList}。使用「[part]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。
     3. 請確保內容簡潔明了。
     題目：${topic}
     用戶輸入的大綱：
@@ -943,7 +940,7 @@
     document.getElementById("argumentOutlineResult").innerHTML = "陳SIR正在點評...";
     try {
         const comment = await callAPI(prompt);
-        console.log("API回應:", comment); // 添加日誌以檢查回應內容
+        console.log("API 回應:", comment); // 調試用，可在控制台查看回應
         const sections = comment.split(/### (.+?) ###/).filter(s => s.trim());
         const commentIndex = sections.indexOf("點評及建議");
         const rewriteIndex = sections.indexOf("改寫後的大綱");
