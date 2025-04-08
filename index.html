@@ -1052,7 +1052,7 @@ function parseRewritePart(rewritePart) {
     文章：${content}
     教學筆記：${note}
     點評語氣：${toneNote}
-    改寫範例語氣：請使用嚴肅正經的語氣，不使用EMOJI或網絡用語。`;
+    建議及改寫範例語氣：請使用嚴肅正經的語氣，不使用EMOJI或網絡用語。`;
     document.getElementById("argumentWritingResult").innerHTML = "陳SIR正在點評...";
     try {
         const comment = await callAPI(prompt);
