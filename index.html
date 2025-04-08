@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -859,8 +860,8 @@
         }
 
         // 新增結構段
-     function addArgumentStructureSegment() {
-    const table[scalebox{0.5}] = document.getElementById("argumentOutlineTable");
+      function addArgumentStructureSegment() {
+    const table = document.getElementById("argumentOutlineTable");
     const rowCount = table.rows.length;
     const newRowIndex = rowCount - 1; // 在「合」之前插入
     const newRow = table.insertRow(newRowIndex);
@@ -868,19 +869,9 @@
     const cell2 = newRow.insertCell(1);
     const cell3 = newRow.insertCell(2);
     const segmentNumber = rowCount - 2; // 從「結構段一」開始計數
-    const segmentName = `結構段${toChineseNumber(segmentNumber + 1)}`;
-    cell1.innerText = segmentName;
+    cell1.innerText = `結構段${segmentNumber + 1}`; // 確保名稱為「結構段四」、「結構段五」等
     cell2.innerHTML = `<textarea id="argumentPoint${newRowIndex - 1}" rows="3"></textarea>`;
     cell3.innerHTML = `<textarea id="argumentEvidence${newRowIndex - 1}" rows="3"></textarea>`;
-}
-
-function toChineseNumber(num) {
-    const chineseNumbers = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
-    if (num <= 10) {
-        return chineseNumbers[num - 1];
-    } else {
-        return `第${num}段`;
-    }
 }
 
         // 保存議論大綱
