@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -102,7 +100,7 @@
         .table-container th:nth-child(5), .table-container td:nth-child(5) {
             min-width: 150px;
         }
-        #writingBtn, #argumentBtn {
+        #writingBtn {
             background-color: #007bff;
         }
         #readingBtn {
@@ -114,7 +112,10 @@
         #expandBtn {
             background-color: #dc3545;
         }
-        #writingBtn:hover, #argumentBtn:hover {
+        #argumentBtn {
+            background-color: #6f42c1; /* 紫色 */
+        }
+        #writingBtn:hover {
             background-color: #0056b3;
         }
         #readingBtn:hover {
@@ -125,6 +126,9 @@
         }
         #expandBtn:hover {
             background-color: #c82333;
+        }
+        #argumentBtn:hover {
+            background-color: #563d7c; /* 深紫色 */
         }
         #chatHistory {
             max-height: 300px;
@@ -439,7 +443,7 @@
         const argumentTopics = [
             "論證題目1",
             "論證題目2",
-            "論證題目3",
+            "論證題目3"
             // 在此處添加更多題目
         ];
 
@@ -860,19 +864,25 @@
         }
 
         // 新增結構段
-      function addArgumentStructureSegment() {
-    const table = document.getElementById("argumentOutlineTable");
-    const rowCount = table.rows.length;
-    const newRowIndex = rowCount - 1; // 在「合」之前插入
-    const newRow = table.insertRow(newRowIndex);
-    const cell1 = newRow.insertCell(0);
-    const cell2 = newRow.insertCell(1);
-    const cell3 = newRow.insertCell(2);
-    const segmentNumber = rowCount - 2; // 從「結構段一」開始計數
-    cell1.innerText = `結構段${segmentNumber + 1}`; // 確保名稱為「結構段四」、「結構段五」等
-    cell2.innerHTML = `<textarea id="argumentPoint${newRowIndex - 1}" rows="3"></textarea>`;
-    cell3.innerHTML = `<textarea id="argumentEvidence${newRowIndex - 1}" rows="3"></textarea>`;
-}
+        function addArgumentStructureSegment() {
+            const table = document.getElementById("argumentOutlineTable");
+            const rowCount = table.rows.length;
+            const newRowIndex = rowCount - 1; // 在「合」之前插入
+            const newRow = table.insertRow(newRowIndex);
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            const cell3 = newRow.insertCell(2);
+            const segmentNumber = rowCount - 2; // 從「結構段一」開始計數
+            cell1.innerText = `結構段${toChineseNumber(segmentNumber + 1)}`; // 使用中文數字顯示
+            cell2.innerHTML = `<textarea id="argumentPoint${newRowIndex - 1}" rows="3"></textarea>`;
+            cell3.innerHTML = `<textarea id="argumentEvidence${newRowIndex - 1}" rows="3"></textarea>`;
+        }
+
+        // 將數字轉換為中文數字
+        function toChineseNumber(num) {
+            const chineseNumbers = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
+            return chineseNumbers[num - 1] || num;
+        }
 
         // 保存議論大綱
         function saveArgumentOutline() {
@@ -903,102 +913,111 @@
         }
 
         // 提交議論大綱
-async function submitArgumentOutline() {
-    const topic = localStorage.getItem("argumentCurrentTopic");
-    if (!topic) {
-        alert("請先設定題目");
-        return;
-    }
-    const table = document.getElementById("argumentOutlineTable");
-    const rows = table.rows;
-    const outlineData = [];
-    for (let i = 1; i < rows.length; i++) { // 跳過表頭
-        const part = rows[i].cells[0].innerText;
-        const pointTextarea = rows[i].cells[1].querySelector("textarea");
-        const evidenceTextarea = rows[i].cells[2].querySelector("textarea");
-        const point = pointTextarea ? pointTextarea.value.trim() : "";
-        const evidence = evidenceTextarea ? evidenceTextarea.value.trim() : "";
-        if (!point || !evidence) {
-            alert("請填寫所有大綱表格");
-            return;
+        async function submitArgumentOutline() {
+            const topic = localStorage.getItem("argumentCurrentTopic");
+            if (!topic) {
+                alert("請先設定題目");
+                return;
+            }
+            const table = document.getElementById("argumentOutlineTable");
+            const rows = table.rows;
+            const outlineData = [];
+            for (let i = 1; i < rows.length; i++) { // 跳過表頭
+                const part = rows[i].cells[0].innerText;
+                const pointTextarea = rows[i].cells[1].querySelector("textarea");
+                const evidenceTextarea = rows[i].cells[2].querySelector("textarea");
+                const point = pointTextarea ? pointTextarea.value.trim() : "";
+                const evidence = evidenceTextarea ? evidenceTextarea.value.trim() : "";
+                if (!point || !evidence) {
+                    alert("請填寫所有大綱表格");
+                    return;
+                }
+                outlineData.push({ part, point, evidence });
+            }
+            const tone = document.getElementById("argumentOutlineTone").value;
+            let toneNote = tone === "chen" ? "請用輕鬆隨意的語氣進行點評和建議，多用EMOJI，偶爾使用網絡用語。" : "請用嚴肅正經的語氣進行點評和建議。";
+            const note = categories["議論"].outlineCommentNote;
+            const partsList = outlineData.map(item => item.part).join(", ");
+            const prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
+            1. 在「### 點評及建議」部分，為以下每個結構段提供點評和建議：${partsList}。使用「[${item => item.part}]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
+            2. 在「### 改寫後的大綱」部分，為以下每個結構段提供改寫後的「論點」和「論據及論證」：${partsList}。使用「[${item => item.part}]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。
+            3. 請確保內容簡潔明了。
+            題目：${topic}
+            用戶輸入的大綱：
+            | 部份 | 論點 | 論據及論證 |
+            |------|------|------------|
+            ${outlineData.map(item => `| ${item.part} | ${item.point} | ${item.evidence} |`).join("\n")}
+            教學筆記：${note}
+            點評及建議語氣：${toneNote}`;
+            document.getElementById("argumentOutlineResult").innerHTML = "陳SIR正在點評...";
+            try {
+                const comment = await callAPI(prompt);
+                console.log("API 回應:", comment); // 調試用，可在控制台查看回應
+                const sections = comment.split(/### (.+?) ###/).filter(s => s.trim());
+                const commentIndex = sections.indexOf("點評及建議");
+                const rewriteIndex = sections.indexOf("改寫後的大綱");
+                const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
+                const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
+                const comments = parseArgumentCommentPart(commentPart);
+                const rewrites = parseArgumentRewritePart(rewritePart);
+                let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="argumentCommentTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th><th>點評</th><th>建議</th></tr>`;
+                outlineData.forEach(item => {
+                    const comment = comments[item.part]?.comment || "無";
+                    const suggestion = comments[item.part]?.suggestion || "無";
+                    commentTableHTML += `<tr><td>${item.part}</td><td>${item.point}</td><td>${item.evidence}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
+                });
+                commentTableHTML += "</table></div>";
+                let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="argumentRewriteTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th></tr>`;
+                outlineData.forEach(item => {
+                    const rewrite = rewrites[item.part] || { point: "無", evidence: "無" };
+                    rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point || "無"}</td><td>${rewrite.evidence || "無"}</td></tr>`;
+                });
+                rewriteTableHTML += "</table></div>";
+                document.getElementById("argumentOutlineResult").innerHTML = commentTableHTML + rewriteTableHTML;
+            } catch (error) {
+                console.error("提交大綱時出錯:", error);
+                if (error.message === "所有 API 密鑰均無法使用") {
+                    alert("今日 API 調用次數已用完或API無法連接，請明天再試");
+                } else {
+                    alert("點評生成失敗，請重試");
+                }
+                document.getElementById("argumentOutlineResult").innerHTML = "";
+            }
         }
-        outlineData.push({ part, point, evidence });
-    }
-    const tone = document.getElementById("argumentOutlineTone").value;
-    let toneNote = tone === "chen" ? "請用輕鬆隨意的語氣進行點評和建議，多用EMOJI，偶爾使用網絡用語。" : "請用嚴肅正經的語氣進行點評和建議。";
-    const note = categories["議論"].outlineCommentNote;
-    const partsList = outlineData.map(item => item.part).join(", ");
-    const prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
-    1. 在「### 點評及建議」部分，為以下每個結構段提供點評和建議：${partsList}。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
-    2. 在「### 改寫後的大綱」部分，為以下每個結構段提供改寫後的「論點」和「論據及論證」：${partsList}。使用「[part]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。
-    3. 請確保內容簡潔明了。
-    題目：${topic}
-    用戶輸入的大綱：
-    | 部份 | 論點 | 論據及論證 |
-    |------|------|------------|
-    ${outlineData.map(item => `| ${item.part} | ${item.point} | ${item.evidence} |`).join("\n")}
-    教學筆記：${note}
-    點評及建議語氣：${toneNote}`;
-    document.getElementById("argumentOutlineResult").innerHTML = "陳SIR正在點評...";
-    try {
-        const comment = await callAPI(prompt);
-        console.log("API 回應:", comment); // 調試用，可在控制台查看回應
-        const sections = comment.split(/### (.+?) ###/).filter(s => s.trim());
-        const commentIndex = sections.indexOf("點評及建議");
-        const rewriteIndex = sections.indexOf("改寫後的大綱");
-        const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
-        const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
-        const comments = parseArgumentCommentPart(commentPart);
-        const rewrites = parseArgumentRewritePart(rewritePart);
-        let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="argumentCommentTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th><th>點評</th><th>建議</th></tr>`;
-        outlineData.forEach(item => {
-            const comment = comments[item.part]?.comment || "無";
-            const suggestion = comments[item.part]?.suggestion || "無";
-            commentTableHTML += `<tr><td>${item.part}</td><td>${item.point}</td><td>${item.evidence}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
-        });
-        commentTableHTML += "</table></div>";
-        let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="argumentRewriteTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th></tr>`;
-        outlineData.forEach(item => {
-            const rewrite = rewrites[item.part] || { point: "無", evidence: "無" };
-            rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point || "無"}</td><td>${rewrite.evidence || "無"}</td></tr>`;
-        });
-        rewriteTableHTML += "</table></div>";
-        document.getElementById("argumentOutlineResult").innerHTML = commentTableHTML + rewriteTableHTML;
-    } catch (error) {
-        console.error("提交大綱時出錯:", error);
-        if (error.message === "所有 API 密鑰均無法使用") {
-            alert("今日 API 調用次數已用完或API無法連接，請明天再試");
-        } else {
-            alert("點評生成失敗，請重試");
+
+        // 解析「點評及建議」部分
+        function parseArgumentCommentPart(commentPart) {
+            const comments = {};
+            const regex = /\[(.+?)\]\s*點評：\s*(.+?)(?=\s*建議：|\s*\[|$)/gs;
+            const suggestionRegex = /\[(.+?)\]\s*點評：.+?\s*建議：\s*(.+?)(?=\s*\[|$)/gs;
+            let match;
+
+            while ((match = regex.exec(commentPart)) !== null) {
+                const part = match[1];
+                comments[part] = comments[part] || {};
+                comments[part].comment = match[2].trim();
+            }
+            while ((match = suggestionRegex.exec(commentPart)) !== null) {
+                const part = match[1];
+                comments[part] = comments[part] || {};
+                comments[part].suggestion = match[2].trim();
+            }
+            return comments;
         }
-        document.getElementById("argumentOutlineResult").innerHTML = "";
-    }
-}
 
-function parseArgumentCommentPart(part) {
-    const items = {};
-    const regex = /\[(.+?)\]\s*([^\[]+)/g;
-    let match;
-    while ((match = regex.exec(part)) !== null) {
-        const partName = match[1];
-        const content = match[2].trim();
-        items[partName] = content.replace(/^[^\：]+：\s*/, '');
-    }
-    return items;
-}
-
-function parseArgumentRewritePart(rewritePart) {
-    const rewrites = {};
-    const regex = /\[(.+?)\]\s*論點：\s*(.+?)\s*論據及論證：\s*(.+?)(?=\s*\[|$)/gs;
-    let match;
-    while ((match = regex.exec(rewritePart)) !== null) {
-        const part = match[1];
-        const point = match[2].trim();
-        const evidence = match[3].trim();
-        rewrites[part] = { point, evidence };
-    }
-    return rewrites;
-}
+        // 解析「改寫後的大綱」部分
+        function parseArgumentRewritePart(rewritePart) {
+            const rewrites = {};
+            const regex = /\[(.+?)\]\s*論點：\s*(.+?)\s*論據及論證：\s*(.+?)(?=\s*\[|$)/gs;
+            let match;
+            while ((match = regex.exec(rewritePart)) !== null) {
+                const part = match[1];
+                const point = match[2].trim();
+                const evidence = match[3].trim();
+                rewrites[part] = { point, evidence };
+            }
+            return rewrites;
+        }
 
         // 提交議論片段寫作/全文寫作
         async function submitArgumentWriting() {
@@ -1561,7 +1580,7 @@ function parseArgumentRewritePart(rewritePart) {
                 updateLastAIMessage(aiResponse);
             } catch (error) {
                 console.error("開始討論時出錯:", error);
-                if (error.message === "所有 API 密鑰均無法使用") {
+                if (error.message === "所有 API 密鑰均無法使用.cutoff") {
                     updateLastAIMessage("今日 API 調用次數已用完，請明天再試。😓");
                 } else {
                     updateLastAIMessage("抱歉，陳SIR無法回應您的問題，請稍後再試。😅");
@@ -1646,6 +1665,7 @@ function parseArgumentRewritePart(rewritePart) {
                 document.getElementById("expandTopicResult").innerHTML = "";
             }
         }
+
 
         // 設定自訂題目（整合拓展）
         function setExpandCustomTopic() {
