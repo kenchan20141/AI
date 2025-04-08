@@ -102,9 +102,12 @@
         .table-container th:nth-child(5), .table-container td:nth-child(5) {
             min-width: 150px;
         }
-        #writingBtn, #argumentBtn {
+        #writingBtn{
             background-color: #007bff;
         }
+        #argumentBtn {
+    background-color: #800080; /* 將「議論」按鍵設為紫色 */
+}
         #readingBtn {
             background-color: #28a745;
         }
@@ -114,9 +117,12 @@
         #expandBtn {
             background-color: #dc3545;
         }
-        #writingBtn:hover, #argumentBtn:hover {
+        #writingBtn:hover {
             background-color: #0056b3;
         }
+        #argumentBtn:hover {
+    background-color: #4B0082; /* 懸停時變為深紫色 */
+}
         #readingBtn:hover {
             background-color: #218838;
         }
@@ -166,22 +172,24 @@
         <h2>工具功能概覽</h2>
         <p>本工具旨在協助同學練習寫作卷和閱讀卷，並提供課外書籍討論。以下是主要功能：</p>
         <ul>
+           <li><strong>閱讀：</strong>提供點評和指引功能，可貼上閱讀篇章和題目，獲取AI的點評或答題指引。</li>
             <li><strong>寫作：</strong>提供片段描寫/全文寫作、大綱的練習及敘事物象指引，可選擇生成或自訂題目，並獲取AI點評和建議。</li>
-            <li><strong>閱讀：</strong>提供點評和指引功能，可貼上閱讀篇章和題目，獲取AI的點評或答題指引。</li>
-            <li><strong>課外書籍：</strong>提供AI聊天室，與AI討論課外書籍，引導深入思考。</li>
-            <li><strong>整合拓展：</strong>提供點評和指引功能，可選擇生成或自訂題目，並獲取AI的點評、建議和改寫。</li>
             <li><strong>議論：</strong>提供大綱、片段寫作/全文寫作和指引功能，幫助練習議論寫作。</li>
+             <li><strong>整合拓展：</strong>提供點評和指引功能，可選擇生成或自訂題目，並獲取AI的點評、建議和改寫。</li>
+            <li><strong>課外書籍：</strong>提供AI聊天室，與AI討論課外書籍，引導深入思考。</li>
+           
         </ul>
     </div>
 
     <!-- 範疇選擇 -->
     <div class="box">
         <h2>選擇練習範疇：</h2>
-        <button id="writingBtn">寫作</button>
         <button id="readingBtn">閱讀</button>
-        <button id="booksBtn">課外書籍</button>
-        <button id="expandBtn">整合拓展</button>
+        <button id="writingBtn">寫作</button>
         <button id="argumentBtn">議論</button>
+        <button id="expandBtn">整合拓展</button>
+        <button id="booksBtn">課外書籍</button>
+        
     </div>
 
     <!-- 寫作容器 -->
