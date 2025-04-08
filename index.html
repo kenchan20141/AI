@@ -902,110 +902,101 @@
 
         // 提交議論大綱
         async function submitArgumentOutline() {
-            const topic = localStorage.getItem("argumentCurrentTopic");
-            if (!topic) {
-                alert("請先設定題目");
-                return;
-            }
-            const table = document.getElementById("argumentOutlineTable");
-            const rows = table.rows;
-            const outlineData = [];
-            for (let i = 1; i < rows.length; i++) {
-                const part = rows[i].cells[0].innerText;
-                const point = document.getElementById(`argumentPoint${i - 1}`).value.trim();
-                const evidence = document.getElementById(`argumentEvidence${i - 1}`).value.trim();
-                if (!point || !evidence) {
-                    alert("請填寫所有大綱表格");
-                    return;
-                }
-                outlineData.push({ part, point, evidence });
-            }
-            const tone = document.getElementById("argumentOutlineTone").value;
-            let toneNote = tone === "chen" ? "請用輕鬆隨意的語氣進行點評和建議，多用EMOJI，偶爾使用網絡用語。" : "請用嚴肅正經的語氣進行點評和建議。";
-            const note = categories["議論"].outlineCommentNote;
-            const prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
-            1. 在「### 點評及建議」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
-            2. 在「### 改寫後的大綱」部分，為每個結構段提供改寫後的「論點」和「論據及論證」。使用「[part]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。
-            3. 請確保內容簡潔明了。
-            題目：${topic}
-            用戶輸入的大綱：
-            | 部份 | 論點 | 論據及論證 |
-            |------|------|------------|
-            ${outlineData.map(item => `| ${item.part} | ${item.point} | ${item.evidence} |`).join("\n")}
-            教學筆記：${note}
-            點評及建議語氣：${toneNote}`;
-            document.getElementById("argumentOutlineResult").innerHTML = "陳SIR正在點評...";
-            try {
-                const comment = await callAPI(prompt);
-                const sections = comment.split(/### (.+?) ###/).filter(s => s.trim());
-                const commentIndex = sections.indexOf("點評及建議");
-                const rewriteIndex = sections.indexOf("改寫後的大綱");
-                const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
-                const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
-                const comments = parseArgumentCommentPart(commentPart);
-                const rewrites = parseArgumentRewritePart(rewritePart);
-                let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="argumentCommentTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th><th>點評</th><th>建議</th></tr>`;
-                outlineData.forEach(item => {
-                    const comment = comments[item.part]?.comment || "無";
-                    const suggestion = comments[item.part]?.suggestion || "無";
-                    commentTableHTML += `<tr><td>${item.part}</td><td>${item.point}</td><td>${item.evidence}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
-                });
-                commentTableHTML += "</table></div>";
-                let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="argumentRewriteTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th></tr>`;
-                outlineData.forEach(item => {
-                    const rewrite = rewrites[item.part] || { point: "無", evidence: "無" };
-                    rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point || "無"}</td><td>${rewrite.evidence || "無"}</td></tr>`;
-                });
-                rewriteTableHTML += "</table></div>";
-                document.getElementById("argumentOutlineResult").innerHTML = commentTableHTML + rewriteTableHTML;
-            } catch (error) {
-                console.error("提交大綱時出錯:", error);
-                if (error.message === "所有 API 密鑰均無法使用") {
-                    alert("今日 API 調用次數已用完或API無法連接，請明天再試");
-                } else {
-                    alert("點評生成失敗，請重試");
-                }
-                document.getElementById("argumentOutlineResult").innerHTML = "";
-            }
+    const topic = localStorage.getItem("argumentCurrentTopic");
+    if (!topic) {
+        alert("請先設定題目");
+        return;
+    }
+    const table = document.getElementById("argumentOutlineTable");
+    const rows = table.rows;
+    const outlineData = [];
+    for (let i = 1; i < rows.length; i++) {
+        const part = rows[i].cells[0].innerText;
+        const point = document.getElementById(`argumentPoint${i - 1}`).value.trim();
+        const evidence = document.getElementById(`argumentEvidence${i - 1}`).value.trim();
+        if (!point || !evidence) {
+            alert("請填寫所有大綱表格");
+            return;
         }
+        outlineData.push({ part, point, evidence });
+    }
+    const tone = document.getElementById("argumentOutlineTone").value;
+    let toneNote = tone === "chen" ? "請用輕鬆隨意的語氣進行點評和建議，多用EMOJI，偶爾使用網絡用語。" : "請用嚴肅正經的語氣進行點評和建議。";
+    const note = categories["議論"].outlineCommentNote;
+    const prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
+    1. 在「### 點評」部分，為每個結構段提供點評。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容。
+    2. 在「### 建議」部分，為每個結構段提供建議。使用「[part]」標記每個結構段的開始，然後在下一行「建議：」後跟建議內容。
+    3. 在「### 改寫後的大綱」部分，為每個結構段提供改寫後的「論點」和「論據及論證」。使用「[part]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。
+    4. 請確保內容簡潔明了。
+    題目：${topic}
+    用戶輸入的大綱：
+    | 部份 | 論點 | 論據及論證 |
+    |------|------|------------|
+    ${outlineData.map(item => `| ${item.part} | ${item.point} | ${item.evidence} |`).join("\n")}
+    教學筆記：${note}
+    點評及建議語氣：${toneNote}`;
+    document.getElementById("argumentOutlineResult").innerHTML = "陳SIR正在點評...";
+    try {
+        const comment = await callAPI(prompt);
+        const sections = comment.split(/### (.+?) ###/).filter(s => s.trim());
+        const commentIndex = sections.findIndex(s => s === "點評");
+        const suggestionIndex = sections.findIndex(s => s === "建議");
+        const rewriteIndex = sections.findIndex(s => s === "改寫後的大綱");
+        const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
+        const suggestionPart = suggestionIndex !== -1 ? sections[suggestionIndex + 1] : "";
+        const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
+        const comments = parseArgumentCommentPart(commentPart);
+        const suggestions = parseArgumentCommentPart(suggestionPart);
+        const rewrites = parseArgumentRewritePart(rewritePart);
+        let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="argumentCommentTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th><th>點評</th><th>建議</th></tr>`;
+        outlineData.forEach(item => {
+            const comment = comments[item.part] || "無";
+            const suggestion = suggestions[item.part] || "無";
+            commentTableHTML += `<tr><td>${item.part}</td><td>${item.point}</td><td>${item.evidence}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
+        });
+        commentTableHTML += "</table></div>";
+        let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="argumentRewriteTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th></tr>`;
+        outlineData.forEach(item => {
+            const rewrite = rewrites[item.part] || { point: "無", evidence: "無" };
+            rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point || "無"}</td><td>${rewrite.evidence || "無"}</td></tr>`;
+        });
+        rewriteTableHTML += "</table></div>";
+        document.getElementById("argumentOutlineResult").innerHTML = commentTableHTML + rewriteTableHTML;
+    } catch (error) {
+        console.error("提交大綱時出錯:", error);
+        if (error.message === "所有 API 密鑰均無法使用") {
+            alert("今日 API 調用次數已用完或API無法連接，請明天再試");
+        } else {
+            alert("點評生成失敗，請重試");
+        }
+        document.getElementById("argumentOutlineResult").innerHTML = "";
+    }
+}
 
-        // 解析議論大綱點評部分
-        function parseArgumentCommentPart(commentPart) {
-            const comments = {};
-            const regex = /\[(.+?)\]\s*點評：\s*(.+?)(?=\s*建議：|\s*\[|$)/gs;
-            const suggestionRegex = /\[(.+?)\]\s*點評：.+?\s*建議：\s*(.+?)(?=\s*\[|$)/gs;
-            let match;
-            while ((match = regex.exec(commentPart)) !== null) {
-                const part = match[1];
-                comments[part] = comments[part] || {};
-                comments[part].comment = match[2].trim();
-            }
-            while ((match = suggestionRegex.exec(commentPart)) !== null) {
-                const part = match[1];
-                comments[part] = comments[part] || {};
-                comments[part].suggestion = match[2].trim();
-            }
-            return comments;
-        }
+function parseArgumentCommentPart(part) {
+    const items = {};
+    const regex = /\[(.+?)\]\s*([^\[]+)/g;
+    let match;
+    while ((match = regex.exec(part)) !== null) {
+        const partName = match[1];
+        const content = match[2].trim();
+        items[partName] = content.replace(/^[^\：]+：\s*/, '');
+    }
+    return items;
+}
 
-        // 解析議論大綱改寫部分
-        function parseArgumentRewritePart(rewritePart) {
-            const rewrites = {};
-            const regex = /\[(.+?)\]\s*論點：\s*(.+?)(?=\s*論據及論證：|\s*\[|$)/gs;
-            const evidenceRegex = /\[(.+?)\]\s*論點：.+?\s*論據及論證：\s*(.+?)(?=\s*\[|$)/gs;
-            let match;
-            while ((match = regex.exec(rewritePart)) !== null) {
-                const part = match[1];
-                rewrites[part] = rewrites[part] || {};
-                rewrites[part].point = match[2].trim();
-            }
-            while ((match = evidenceRegex.exec(rewritePart)) !== null) {
-                const part = match[1];
-                rewrites[part] = rewrites[part] || {};
-                rewrites[part].evidence = match[2].trim();
-            }
-            return rewrites;
-        }
+function parseArgumentRewritePart(rewritePart) {
+    const rewrites = {};
+    const regex = /\[(.+?)\]\s*論點：\s*(.+?)\s*論據及論證：\s*(.+?)(?=\s*\[|$)/gs;
+    let match;
+    while ((match = regex.exec(rewritePart)) !== null) {
+        const part = match[1];
+        const point = match[2].trim();
+        const evidence = match[3].trim();
+        rewrites[part] = { point, evidence };
+    }
+    return rewrites;
+}
 
         // 提交議論片段寫作/全文寫作
         async function submitArgumentWriting() {
