@@ -944,11 +944,9 @@ async function submitArgumentOutline() {
     try {
         const comment = await callAPI(prompt);
         console.log("API 回應:", comment); // 調試用，可在控制台查看回應
-        const sections = comment.split(/### (.+?) ###/).filter(s => s.trim());
-        const commentIndex = sections.indexOf("點評及建議");
-        const rewriteIndex = sections.indexOf("改寫後的大綱");
-        const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
-        const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
+        const sections = comment.split(/### (.+?)/).filter(s => s.trim());
+        const commentPart = sections[sections.indexOf("點評及建議") + 1] || "";
+        const rewritePart = sections[sections.indexOf("改寫後的大綱") + 1] || "";
         const comments = parseArgumentCommentPart(commentPart);
         const rewrites = parseArgumentRewritePart(rewritePart);
         let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="argumentCommentTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th><th>點評</th><th>建議</th></tr>`;
@@ -976,7 +974,6 @@ async function submitArgumentOutline() {
     }
 }
 
-// 解析點評及建議
 function parseArgumentCommentPart(part) {
     const items = {};
     const regex = /\[(.+?)\]\s*點評：\s*(.+?)\s*建議：\s*(.+?)(?=\s*\[|$)/gs;
@@ -990,7 +987,6 @@ function parseArgumentCommentPart(part) {
     return items;
 }
 
-// 解析改寫後的大綱
 function parseArgumentRewritePart(rewritePart) {
     const rewrites = {};
     const regex = /\[(.+?)\]\s*論點：\s*(.+?)\s*論據及論證：\s*(.+?)(?=\s*\[|$)/gs;
