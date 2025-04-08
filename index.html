@@ -440,65 +440,63 @@
         }
 
         // 切換寫作類型
-function toggleWritingType() {
-    const writingType = document.getElementById("writingType").value;
-    const outlineStructureArea = document.getElementById("outlineStructureArea");
-    const narrativeElementsArea = document.getElementById("narrativeElementsArea");
-    const writingContent = document.getElementById("writingContent");
-    const outlineTableArea = document.getElementById("outlineTableArea");
-    const writingToneLabel = document.getElementById("writingToneLabel");
-    const writingTone = document.getElementById("writingTone");
-    const outlineButtons = document.getElementById("outlineButtons");
+        function toggleWritingType() {
+            const writingType = document.getElementById("writingType").value;
+            const outlineStructureArea = document.getElementById("outlineStructureArea");
+            const narrativeElementsArea = document.getElementById("narrativeElementsArea");
+            const writingContent = document.getElementById("writingContent");
+            const outlineTableArea = document.getElementById("outlineTableArea");
+            const writingToneLabel = document.getElementById("writingToneLabel");
+            const writingTone = document.getElementById("writingTone");
+            const outlineButtons = document.getElementById("outlineButtons");
 
-    if (writingType === "大綱") {
-        outlineStructureArea.style.display = "block";
-        narrativeElementsArea.style.display = "none";
-        writingContent.style.display = "none";
-        outlineTableArea.style.display = "block";
-        generateOutlineTable();
-        loadOutline(); // 添加調用以確保切換時加載儲存內容
-        writingToneLabel.style.display = "block";
-        writingTone.style.display = "block";
-        outlineButtons.style.display = "block";
-    } else if (writingType === "敘事物象") {
-        outlineStructureArea.style.display = "none";
-        narrativeElementsArea.style.display = "block";
-        writingContent.style.display = "none";
-        outlineTableArea.innerHTML = "";
-        outlineTableArea.style.display = "none";
-        writingToneLabel.style.display = "none";
-        writingTone.style.display = "none";
-        outlineButtons.style.display = "none";
-    } else { // 片段描寫
-        outlineStructureArea.style.display = "none";
-        narrativeElementsArea.style.display = "none";
-        writingContent.style.display = "block";
-        outlineTableArea.innerHTML = "";
-        outlineTableArea.style.display = "none";
-        writingToneLabel.style.display = "block";
-        writingTone.style.display = "block";
-        outlineButtons.style.display = "none";
-    }
-    toggleTopicInput();
-}
+            if (writingType === "大綱") {
+                outlineStructureArea.style.display = "block";
+                narrativeElementsArea.style.display = "none";
+                writingContent.style.display = "none";
+                outlineTableArea.style.display = "block";
+                generateOutlineTable();
+                loadOutline();
+                writingToneLabel.style.display = "block";
+                writingTone.style.display = "block";
+                outlineButtons.style.display = "block";
+            } else if (writingType === "敘事物象") {
+                outlineStructureArea.style.display = "none";
+                narrativeElementsArea.style.display = "block";
+                writingContent.style.display = "none";
+                outlineTableArea.innerHTML = "";
+                outlineTableArea.style.display = "none";
+                writingToneLabel.style.display = "none";
+                writingTone.style.display = "none";
+                outlineButtons.style.display = "none";
+            } else { // 片段描寫
+                outlineStructureArea.style.display = "none";
+                narrativeElementsArea.style.display = "none";
+                writingContent.style.display = "block";
+                outlineTableArea.innerHTML = "";
+                outlineTableArea.style.display = "none";
+                writingToneLabel.style.display = "block";
+                writingTone.style.display = "block";
+                outlineButtons.style.display = "none";
+            }
+            toggleTopicInput();
+        }
 
-       // 保存大綱
-function saveOutline() {
-    const structure = document.getElementById("structure").value;
-    const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
-    const outlineData = parts.map((part, index) => {
-        const focusId = structure + "Focus" + (index + 1);
-        const plotId = structure + "Plot" + (index + 1);
-        const focus = document.getElementById(focusId)?.value.trim() || "";
-        const plot = document.getElementById(plotId)?.value.trim() || "";
-        return { part, focus, plot };
-    });
-    console.log("Saving outline - Structure:", structure, "Data:", outlineData); // 添加日誌
-    localStorage.setItem("outlineData", JSON.stringify(outlineData));
-    localStorage.setItem("outlineStructure", structure);
-    console.log("Outline saved to localStorage"); // 添加日誌
-    alert("大綱已儲存");
-}
+        // 保存大綱
+        function saveOutline() {
+            const structure = document.getElementById("structure").value;
+            const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
+            const outlineData = parts.map((part, index) => {
+                const focusId = structure + "Focus" + (index + 1);
+                const plotId = structure + "Plot" + (index + 1);
+                const focus = document.getElementById(focusId)?.value.trim() || "";
+                const plot = document.getElementById(plotId)?.value.trim() || "";
+                return { part, focus, plot };
+            });
+            localStorage.setItem("outlineData", JSON.stringify(outlineData));
+            localStorage.setItem("outlineStructure", structure);
+            alert("大綱已儲存");
+        }
 
         // 清空大綱
         function clearOutline() {
@@ -517,30 +515,21 @@ function saveOutline() {
         }
 
         // 加載大綱
-function loadOutline() {
-    const savedStructure = localStorage.getItem("outlineStructure");
-    const savedData = localStorage.getItem("outlineData");
-    console.log("Loading outline - Structure:", savedStructure, "Data:", savedData); // 添加日誌
-    if (savedStructure && savedData) {
-        document.getElementById("structure").value = savedStructure;
-        generateOutlineTable();
-        try {
-            const parsedData = JSON.parse(savedData);
-            parsedData.forEach((item, index) => {
-                const focusId = savedStructure + "Focus" + (index + 1);
-                const plotId = savedStructure + "Plot" + (index + 1);
-                const focusElement = document.getElementById(focusId);
-                const plotElement = document.getElementById(plotId);
-                if (focusElement) focusElement.value = item.focus;
-                else console.error("Focus element not found:", focusId); // 添加錯誤日誌
-                if (plotElement) plotElement.value = item.plot;
-                else console.error("Plot element not found:", plotId); // 添加錯誤日誌
-            });
-        } catch (e) {
-            console.error("Error parsing outlineData:", e); // 添加錯誤處理
+        function loadOutline() {
+            const savedStructure = localStorage.getItem("outlineStructure");
+            const savedData = localStorage.getItem("outlineData");
+            if (savedStructure && savedData) {
+                document.getElementById("structure").value = savedStructure;
+                generateOutlineTable();
+                const parsedData = JSON.parse(savedData);
+                parsedData.forEach((item, index) => {
+                    const focusId = savedStructure + "Focus" + (index + 1);
+                    const plotId = savedStructure + "Plot" + (index + 1);
+                    if (document.getElementById(focusId)) document.getElementById(focusId).value = item.focus;
+                    if (document.getElementById(plotId)) document.getElementById(plotId).value = item.plot;
+                });
+            }
         }
-    }
-}
 
         // 保存課外書籍對話
         function saveBooksChat() {
@@ -712,8 +701,18 @@ function loadOutline() {
             }
         }
 
+        // BASE64 編碼與解碼函數
+        function encodeToBase64(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
+
+        function decodeFromBase64(encoded) {
+            return decodeURIComponent(escape(atob(encoded)));
+        }
+
         // 通用 API 調用函數
-        async function callAPI(prompt) {
+        async function callAPI(encodedPrompt) {
+            const prompt = decodeFromBase64(encodedPrompt);
             let attempts = 0;
             const maxAttempts = API_KEYS.length;
             while (attempts < maxAttempts) {
@@ -776,7 +775,8 @@ function loadOutline() {
                     3. 輸出格式為：結構段重點：...\n情節大要：...\n
                     4. 內容簡潔明瞭，避免冗長，它只是文章的其中一個結構段，因此不要過份完整。
                     題目：${selectedTopic}`;
-                    const response = await callAPI(prompt);
+                    const encodedPrompt = encodeToBase64(prompt);
+                    const response = await callAPI(encodedPrompt);
                     const focusMatch = response.match(/結構段重點：\s*(.+?)(?=\n情節大要：|$)/s);
                     const plotMatch = response.match(/情節大要：\s*(.+)/s);
                     if (!focusMatch || !plotMatch) throw new Error("API 回應格式不正確");
@@ -946,10 +946,11 @@ function loadOutline() {
                 點評及建議語氣：${toneNote}`;
             }
 
+            const encodedPrompt = encodeToBase64(prompt);
             document.getElementById("commentResult").innerHTML = "陳SIR正在點評...";
 
             try {
-                const comment = await callAPI(prompt);
+                const comment = await callAPI(encodedPrompt);
                 if (writingType === "大綱") {
                     const sections = comment.split(/=== (.+?) ===/).filter(s => s.trim());
                     const commentIndex = sections.indexOf("點評及建議");
@@ -1107,10 +1108,11 @@ function loadOutline() {
                 教學筆記：${note}`;
             }
 
+            const encodedPrompt = encodeToBase64(prompt);
             document.getElementById("readingResult").innerHTML = "陳SIR正在思考" + (readingFunction === "comment" ? "點評" : "指引") + "...";
 
             try {
-                const result = await callAPI(prompt);
+                const result = await callAPI(encodedPrompt);
                 if (readingFunction === "comment") {
                     const parts = result.split("###").map(part => part.trim()).filter(part => part);
                     let resultHTML = "<h3>陳SIR點評：</h3><table>";
@@ -1175,9 +1177,10 @@ function loadOutline() {
         async function sendInitialMessage() {
             let toneNote = booksTone === "serious" ? categories["課外書籍"].seriousChatNote : categories["課外書籍"].chatNote;
             const prompt = `我是一位高中生，正在閱讀《${bookTitle}》，作者是${author}。我想討論的問題是：${discussionQuestion}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，永遠不要列點回應，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
+            const encodedPrompt = encodeToBase64(prompt);
             addMessageToHistory("ai", "陳SIR正在回應...");
             try {
-                const aiResponse = await callAPI(prompt);
+                const aiResponse = await callAPI(encodedPrompt);
                 updateLastAIMessage(aiResponse);
             } catch (error) {
                 console.error("開始討論時出錯:", error);
@@ -1198,9 +1201,10 @@ function loadOutline() {
             addMessageToHistory("user", userInput);
             let toneNote = booksTone === "serious" ? categories["課外書籍"].seriousChatNote : categories["課外書籍"].chatNote;
             const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，必須詳細分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
+            const encodedPrompt = encodeToBase64(prompt);
             addMessageToHistory("ai", "陳SIR正在回應...");
             try {
-                const aiResponse = await callAPI(prompt);
+                const aiResponse = await callAPI(encodedPrompt);
                 updateLastAIMessage(aiResponse);
             } catch (error) {
                 console.error("繼續討論時出錯:", error);
@@ -1240,9 +1244,10 @@ function loadOutline() {
         // 生成整合拓展題目
         async function generateExpandTopic() {
             const prompt = categories["整合拓展"].topicPrompt;
+            const encodedPrompt = encodeToBase64(prompt);
             document.getElementById("expandTopicResult").innerHTML = "陳SIR正在出題...";
             try {
-                const topic = await callAPI(prompt);
+                const topic = await callAPI(encodedPrompt);
                 const lines = topic.split("\n").map(line => line.trim()).filter(line => line);
                 const themeMatch = lines.find(line => line.startsWith("主題句："));
                 const dataMatch = lines.find(line => line.startsWith("抄錄資料："));
@@ -1342,11 +1347,12 @@ function loadOutline() {
             整合拓展：${content}
             教學筆記：${note}
             點評語氣：${toneNote}`;
+            const encodedPrompt = encodeToBase64(prompt);
 
             document.getElementById("expandCommentResult").innerHTML = "陳SIR正在點評...";
 
             try {
-                const comment = await callAPI(prompt);
+                const comment = await callAPI(encodedPrompt);
                 const commentParts = comment.split("###").map(part => part.trim()).filter(part => part);
                 let commentHTML = "<h3>陳SIR點評：</h3><table>";
                 commentParts.forEach(part => {
@@ -1389,11 +1395,12 @@ function loadOutline() {
             抄錄資料：${data}
             整合拓展：${expand}
             教學筆記：${note}`;
+            const encodedPrompt = encodeToBase64(prompt);
 
             document.getElementById("expandGuideResult").innerHTML = "陳SIR正在思考指引...";
 
             try {
-                const guide = await callAPI(prompt);
+                const guide = await callAPI(encodedPrompt);
                 const guideParts = guide.split("###").map(part => part.trim()).filter(part => part);
                 let guideHTML = "<h3>陳SIR指引：</h3><ul>";
                 guideParts.forEach(part => {
