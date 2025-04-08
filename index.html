@@ -1631,7 +1631,7 @@
             }
         }
 
-        // 生成整合拓展題目
+       // 生成整合拓展題目
         async function generateExpandTopic() {
             const prompt = categories["整合拓展"].topicPrompt;
             document.getElementById("expandTopicResult").innerHTML = "陳SIR正在出題...";
@@ -1643,7 +1643,8 @@
                 if (!themeMatch || !dataMatch) throw new Error("API 回應格式不正確");
                 const theme = themeMatch.replace("主題句：", "").trim();
                 const data = dataMatch.replace("抄錄資料：", "").trim();
-                if (!theme || !data) throw new Error("生成內容            document.getElementById("expandTopicResult").innerHTML = `
+                if (!theme || !data) throw new Error("生成內容不完整");
+                document.getElementById("expandTopicResult").innerHTML = `
                     主題句：<strong>${theme}</strong><br>
                     抄錄資料：<strong>${data}</strong>
                 `;
@@ -1688,7 +1689,6 @@
                 document.getElementById("expandContent").value = content.substring(0, 180);
             }
         }
-
 
         // 提交整合拓展內容
         async function submitExpand() {
