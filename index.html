@@ -860,7 +860,7 @@
 
         // 新增結構段
      function addArgumentStructureSegment() {
-    const table = document.getElementById("argumentOutlineTable");
+    const table[scalebox{0.5}] = document.getElementById("argumentOutlineTable");
     const rowCount = table.rows.length;
     const newRowIndex = rowCount - 1; // 在「合」之前插入
     const newRow = table.insertRow(newRowIndex);
@@ -868,11 +868,19 @@
     const cell2 = newRow.insertCell(1);
     const cell3 = newRow.insertCell(2);
     const segmentNumber = rowCount - 2; // 從「結構段一」開始計數
-    const chineseNumbers = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
-    const segmentName = `結構段${chineseNumbers[segmentNumber]}`;
+    const segmentName = `結構段${toChineseNumber(segmentNumber + 1)}`;
     cell1.innerText = segmentName;
     cell2.innerHTML = `<textarea id="argumentPoint${newRowIndex - 1}" rows="3"></textarea>`;
     cell3.innerHTML = `<textarea id="argumentEvidence${newRowIndex - 1}" rows="3"></textarea>`;
+}
+
+function toChineseNumber(num) {
+    const chineseNumbers = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
+    if (num <= 10) {
+        return chineseNumbers[num - 1];
+    } else {
+        return `第${num}段`;
+    }
 }
 
         // 保存議論大綱
@@ -943,25 +951,30 @@ async function submitArgumentOutline() {
     document.getElementById("argumentOutlineResult").innerHTML = "陳SIR正在點評...";
     try {
         const comment = await callAPI(prompt);
-        console.log("API 回應:", comment); // 調試用，可在控制台查看回應
+        console.log("API 回應:", comment); // 調試用
         const sections = comment.split(/### (.+?)/).filter(s => s.trim());
         const commentPart = sections[sections.indexOf("點評及建議") + 1] || "";
         const rewritePart = sections[sections.indexOf("改寫後的大綱") + 1] || "";
         const comments = parseArgumentCommentPart(commentPart);
         const rewrites = parseArgumentRewritePart(rewritePart);
+        
+        // 點評及建議表格
         let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="argumentCommentTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th><th>點評</th><th>建議</th></tr>`;
         outlineData.forEach(item => {
-            const comment = comments[item.part]?.comment || "無";
-            const suggestion = comments[item.part]?.suggestion || "無";
+            const comment = comments[item.part]?.comment || "未能生成點評";
+            const suggestion = comments[item.part]?.suggestion || "未能生成建議";
             commentTableHTML += `<tr><td>${item.part}</td><td>${item.point}</td><td>${item.evidence}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
         });
         commentTableHTML += "</table></div>";
+
+        // 改寫後的大綱表格
         let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="argumentRewriteTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th></tr>`;
         outlineData.forEach(item => {
-            const rewrite = rewrites[item.part] || { point: "無", evidence: "無" };
-            rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point || "無"}</td><td>${rewrite.evidence || "無"}</td></tr>`;
+            const rewrite = rewrites[item.part] || { point: "未能生成論點", evidence: "未能生成論據及論證" };
+            rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point}</td><td>${rewrite.evidence}</td></tr>`;
         });
         rewriteTableHTML += "</table></div>";
+
         document.getElementById("argumentOutlineResult").innerHTML = commentTableHTML + rewriteTableHTML;
     } catch (error) {
         console.error("提交大綱時出錯:", error);
