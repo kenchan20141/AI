@@ -901,8 +901,7 @@
         }
 
         // 提交議論大綱
-        // 提交議論大綱
-async function submitArgumentOutline() {
+  async function submitArgumentOutline() {
     const topic = localStorage.getItem("argumentCurrentTopic");
     if (!topic) {
         alert("請先設定題目");
@@ -911,10 +910,16 @@ async function submitArgumentOutline() {
     const table = document.getElementById("argumentOutlineTable");
     const rows = table.rows;
     const outlineData = [];
-    for (let i = 1; i < rows.length; i++) {
+    for (let i = 1; i < rows.length; i++) { // 跳過表頭
         const part = rows[i].cells[0].innerText;
-        const point = document.getElementById(`argumentPoint${i - 1}`).value.trim();
-        const evidence = document.getElementById(`argumentEvidence${i - 1}`).value.trim();
+        const pointTextarea = rows[i].cells[1].querySelector("textarea");
+        const evidenceTextarea = rows[i].cells[2].querySelector("textarea");
+        if (!pointTextarea || !evidenceTextarea) {
+            alert("表格結構錯誤");
+            return;
+        }
+        const point = pointTextarea.value.trim();
+        const evidence = evidenceTextarea.value.trim();
         if (!point || !evidence) {
             alert("請填寫所有大綱表格");
             return;
@@ -928,7 +933,6 @@ async function submitArgumentOutline() {
     1. 在「### 點評及建議」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
     2. 在「### 改寫後的大綱」部分，為每個結構段提供改寫後的「論點」和「論據及論證」。使用「[part]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。
     3. 請確保內容簡潔明了。
-    4. 如果用戶的大綱內容不完整或有明顯錯誤，請在點評中指出，並在改寫後的大綱中提供合理的內容。
     題目：${topic}
     用戶輸入的大綱：
     | 部份 | 論點 | 論據及論證 |
@@ -939,6 +943,7 @@ async function submitArgumentOutline() {
     document.getElementById("argumentOutlineResult").innerHTML = "陳SIR正在點評...";
     try {
         const comment = await callAPI(prompt);
+        console.log("API回應:", comment); // 添加日誌以檢查回應內容
         const sections = comment.split(/### (.+?) ###/).filter(s => s.trim());
         const commentIndex = sections.indexOf("點評及建議");
         const rewriteIndex = sections.indexOf("改寫後的大綱");
@@ -948,15 +953,15 @@ async function submitArgumentOutline() {
         const rewrites = parseArgumentRewritePart(rewritePart);
         let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="argumentCommentTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th><th>點評</th><th>建議</th></tr>`;
         outlineData.forEach(item => {
-            const comment = comments[item.part]?.comment || "該部分內容不完整或有明顯錯誤，請參考改寫後的大綱。";
-            const suggestion = comments[item.part]?.suggestion || "請參考改寫後的大綱中的建議。";
+            const comment = comments[item.part]?.comment || "無";
+            const suggestion = comments[item.part]?.suggestion || "無";
             commentTableHTML += `<tr><td>${item.part}</td><td>${item.point}</td><td>${item.evidence}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
         });
         commentTableHTML += "</table></div>";
         let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="argumentRewriteTable"><tr><th>部份</th><th>論點</th><th>論據及論證</th></tr>`;
         outlineData.forEach(item => {
-            const rewrite = rewrites[item.part] || { point: "該部分內容不完整或有明顯錯誤，請參考其他部分的示例。", evidence: "該部分內容不完整或有明顯錯誤，請參考其他部分的示例。" };
-            rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point}</td><td>${rewrite.evidence}</td></tr>`;
+            const rewrite = rewrites[item.part] || { point: "無", evidence: "無" };
+            rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point || "無"}</td><td>${rewrite.evidence || "無"}</td></tr>`;
         });
         rewriteTableHTML += "</table></div>";
         document.getElementById("argumentOutlineResult").innerHTML = commentTableHTML + rewriteTableHTML;
