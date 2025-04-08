@@ -861,20 +861,16 @@
         // 新增結構段
      function addArgumentStructureSegment() {
     const table = document.getElementById("argumentOutlineTable");
-    const rows = table.rows;
-    let structureSegmentCount = 0;
-    for (let i = 1; i < rows.length - 1; i++) { // 跳過表頭和「合」
-        if (rows[i].cells[0].innerText.startsWith("結構段")) {
-            structureSegmentCount++;
-        }
-    }
-    const newSegmentNumber = structureSegmentCount + 1;
-    const newRowIndex = rows.length - 1; // 在「合」之前插入
+    const rowCount = table.rows.length;
+    const newRowIndex = rowCount - 1; // 在「合」之前插入
     const newRow = table.insertRow(newRowIndex);
     const cell1 = newRow.insertCell(0);
     const cell2 = newRow.insertCell(1);
     const cell3 = newRow.insertCell(2);
-    cell1.innerText = `結構段${newSegmentNumber}`;
+    const segmentNumber = rowCount - 2; // 從「結構段一」開始計數
+    const chineseNumbers = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
+    const segmentName = `結構段${chineseNumbers[segmentNumber]}`;
+    cell1.innerText = segmentName;
     cell2.innerHTML = `<textarea id="argumentPoint${newRowIndex - 1}" rows="3"></textarea>`;
     cell3.innerHTML = `<textarea id="argumentEvidence${newRowIndex - 1}" rows="3"></textarea>`;
 }
@@ -980,29 +976,21 @@ async function submitArgumentOutline() {
     }
 }
 
+// 解析點評及建議
 function parseArgumentCommentPart(part) {
-    const comments = {};
-    const regexComment = /\[(.+?)\]\s*點評：\s*(.+?)(?=\s*建議：|\s*\[|$)/gs;
-    const regexSuggestion = /\[(.+?)\]\s*建議：\s*(.+?)(?=\s*\[|$)/gs;
+    const items = {};
+    const regex = /\[(.+?)\]\s*點評：\s*(.+?)\s*建議：\s*(.+?)(?=\s*\[|$)/gs;
     let match;
-
-    while ((match = regexComment.exec(part)) !== null) {
+    while ((match = regex.exec(part)) !== null) {
         const partName = match[1];
         const comment = match[2].trim();
-        comments[partName] = comments[partName] || {};
-        comments[partName].comment = comment;
+        const suggestion = match[3].trim();
+        items[partName] = { comment, suggestion };
     }
-
-    while ((match = regexSuggestion.exec(part)) !== null) {
-        const partName = match[1];
-        const suggestion = match[2].trim();
-        comments[partName] = comments[partName] || {};
-        comments[partName].suggestion = suggestion;
-    }
-
-    return comments;
+    return items;
 }
 
+// 解析改寫後的大綱
 function parseArgumentRewritePart(rewritePart) {
     const rewrites = {};
     const regex = /\[(.+?)\]\s*論點：\s*(.+?)\s*論據及論證：\s*(.+?)(?=\s*\[|$)/gs;
