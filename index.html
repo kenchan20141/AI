@@ -403,14 +403,16 @@
 
     <script>
         // API 配置信息
-        const API_KEYS = [
-            "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",
-            "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",
-            "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"
-        ];
-        let currentApiKeyIndex = 0;
-        const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-        const MODEL = "deepseek/deepseek-r1:free";
+const API_KEYS = [
+    "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",
+    "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",
+    "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",
+    "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",
+    "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"
+];
+let currentApiKeyIndex = 0;
+const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const MODEL = "deepseek/deepseek-r1:free";
 
         // 預設寫作題目列表
         const topics = [
@@ -1150,50 +1152,50 @@ async function submitArgumentOutline() {
             }
         }
 
-        // 通用 API 調用函數
-        async function callAPI(prompt) {
-            let attempts = 0;
-            const maxAttempts = API_KEYS.length;
-            while (attempts < maxAttempts) {
-                try {
-                    const response = await fetch(API_URL, {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            model: MODEL,
-                            messages: [{ role: "user", content: prompt }]
-                        })
-                    });
+       // 通用 API 調用函數
+async function callAPI(prompt) {
+    let attempts = 0;
+    const maxAttempts = API_KEYS.length;
+    while (attempts < maxAttempts) {
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [{ role: "user", content: prompt }]
+                })
+            });
 
-                    if (response.status === 429) {
-                        currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
-                        attempts++;
-                        continue;
-                    }
+            if (response.status === 429) {
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+                attempts++;
+                continue;
+            }
 
-                    if (!response.ok) {
-                        throw new Error(`API 調用失敗: ${response.statusText}`);
-                    }
+            if (!response.ok) {
+                throw new Error(`API 調用失敗: ${response.statusText}`);
+            }
 
-                    const data = await response.json();
-                    const content = data.choices[0].message.content.trim();
-                    if (!content || content.includes("<tool_response>")) {
-                        throw new Error("API 回應無效或包含異常標籤");
-                    }
-                    return content;
-                } catch (error) {
-                    console.error(error);
-                    currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
-                    attempts++;
-                    if (attempts >= maxAttempts) {
-                        throw new Error("所有 API 密鑰均無法使用");
-                    }
-                }
+            const data = await response.json();
+            const content = data.choices[0].message.content.trim();
+            if (!content || content.includes("<tool_response>")) {
+                throw new Error("API 回應無效或包含異常標籤");
+            }
+            return content;
+        } catch (error) {
+            console.error(error);
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+            attempts++;
+            if (attempts >= maxAttempts) {
+                throw new Error("所有 API 密鑰均無法使用");
             }
         }
+    }
+}
 
         // 生成寫作題目
         async function generateTopic() {
