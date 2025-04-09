@@ -938,7 +938,7 @@ async function submitArgumentOutline() {
     let toneNote = tone === "chen" ? "請用輕鬆隨意的語氣進行點評，多用EMOJI，偶爾使用網絡用語。" : "請用嚴肅正經的語氣進行點評。";
     const note = categories["議論"].outlineCommentNote;
     const partsList = outlineData.map(item => item.part).join(", ");
-    const prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
+    const prompt = `請根據以下大綱內容進行點評、建議，並提供改寫後的大綱，必須分為三個部份：「點評」、「建議」及「改寫後的大綱」。要求：
     1. 在「=== 點評 ===」部分，為以下每個結構段提供點評：${partsList}。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容。
     2. 在「=== 建議 ===」部分，為以下每個結構段提供建議：${partsList}。使用「[part]」標記每個結構段的開始，然後在下一行「建議：」後跟建議內容。請使用嚴肅正經的語氣，不使用EMOJI或網絡用語。
     3. 在「=== 改寫後的大綱 ===」部分，為以下每個結構段提供改寫後的「論點」和「論據及論證」：${partsList}。使用「[part]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。請使用嚴肅正經的語氣，不使用EMOJI或網絡用語。
