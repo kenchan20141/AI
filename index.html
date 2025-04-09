@@ -948,9 +948,11 @@ async function submitArgumentOutline() {
     | 部份 | 論點 | 論據及論證 |
     |------|------|------------|
     ${outlineData.map(item => `| ${item.part} | ${item.point} | ${item.evidence} |`).join("\n")}
-    教學筆記：${note}
-    點評及建議語氣：${toneNote}`;
+        教學筆記：${note}
+    點評語氣：${toneNote}
+    建議和改寫後的大綱語氣：請使用嚴肅正經的語氣，不使用EMOJI或網絡用語。`;
     document.getElementById("argumentOutlineResult").innerHTML = "陳SIR正在點評...";
+
     try {
         const comment = await callAPI(prompt);
         console.log("API 回應:", comment); // 調試用
@@ -1049,13 +1051,17 @@ async function submitArgumentOutline() {
             2. 評估論據是否與論點密切相關，全文論據是否涵蓋古今中外（不需要每段都有古今中外的例子）
             3. 評估論證是否嚴謹，能具體解釋論據與論點的關係
             4. 評估文句密度（詞匯量、實詞及虛詞比例）
-            5. 輸出分為三個部分：### 點評、### 建議、### 改寫範例
-            6. 點評和建議以段落形式呈現，不使用列點
-            題目：${topic}
-            文章：${content}
-            教學筆記：${note}
-            點評及建議語氣：${toneNote}`;
-            document.getElementById("argumentWritingResult").innerHTML = "陳SIR正在點評...";
+            5. 在「### 點評」及「### 建議」中，必須根據用家輸入的內容點評及建議，不能捏造事實，即先指出用家未曾提過的例子或論點，然後據此再作點評及建議。
+            6. 在「### 改寫範例」中，請注意例子密度的控制，不要連續舉例，宜運用兩詳（兩個詳細例子論證一個論點）、一詳二略（一個詳細例子加兩個簡略例子論證一個論點）或數略（數個簡略例子論證一個論點）等方式，使文章錯落有致。
+            7. 輸出分為三個部分：### 點評、### 建議、### 改寫範例
+            8. 點評和建議以段落形式呈現，不使用列點
+                題目：${topic}
+    文章：${content}
+    教學筆記：${note}
+    點評語氣：${toneNote}
+    建議及改寫範例語氣：請使用嚴肅正經的語氣，不使用EMOJI或網絡用語。`;
+    document.getElementById("argumentWritingResult").innerHTML = "陳SIR正在點評...";
+
             try {
                 const comment = await callAPI(prompt);
                 const commentParts = comment.split("###").map(part => part.trim()).filter(part => part);
