@@ -177,20 +177,47 @@
 <body>
     <h1>中文老師的救星</h1>
 
-    <!-- 工具功能概覽 -->
-    <div class="box">
-        <h2>工具功能概覽</h2>
-        <p>本工具旨在協助同學練習寫作卷和閱讀卷，並提供課外書籍討論。以下是主要功能：</p>
-        <ul>
-           <li><strong>閱讀：</strong>提供點評和指引功能，可貼上閱讀篇章和題目，獲取AI的點評或答題指引。</li>
-            <li><strong>敘事抒情：</strong>提供大綱、片段描寫/全文寫作點評和敘事物象指引功能，可選擇生成或自訂題目，並獲取AI點評和建議。</li>
-            <li><strong>議論：</strong>提供大綱、片段寫作/全文寫作點評和指引功能，幫助練習議論寫作。</li>
-             <li><strong>整合拓展：</strong>提供點評和指引功能，可選擇生成或自訂題目，並獲取AI的點評、建議和改寫。</li>
-            <li><strong>課外書籍：</strong>設有AI聊天室，供用家與AI討論課外書籍，引導深入思考。</li>
-           
-        </ul>
-    </div>
+   <!-- 工具功能概覽按鈕 -->
+<div class="box">
+    <button id="toggleOverviewBtn" onclick="toggleOverview()">顯示工具功能概覽</button>
+</div>
 
+<!-- 工具功能概覽（初始隱藏） -->
+<div id="overviewContainer" class="box" style="display: none;">
+    <h2>工具功能概覽</h2>
+    <p>本工具旨在協助同學練習寫作卷和閱讀卷，並提供課外書籍討論。以下是主要功能：</p>
+    <table>
+        <tr>
+            <th>範疇</th>
+            <th>功能介紹</th>
+        </tr>
+        <tr>
+            <td>閱讀</td>
+            <td>提供點評和指引功能，可貼上閱讀篇章和題目，獲取AI的點評或答題指引。</td>
+        </tr>
+        <tr>
+            <td>敘事抒情</td>
+            <td>提供大綱、片段描寫/全文寫作點評和敘事物象指引功能，可選擇生成或自訂題目，並獲取AI點評和建議。</td>
+        </tr>
+        <tr>
+            <td>議論</td>
+            <td>提供大綱、片段寫作/全文寫作點評和指引功能，幫助練習議論寫作。</td>
+        </tr>
+        <tr>
+            <td>智能原稿紙</td>
+            <td>提供電子原稿紙，並設有AI答惑功能。</td>
+        </tr>
+        <tr>
+            <td>整合拓展</td>
+            <td>提供點評和指引功能，可選擇生成或自訂題目，並獲取AI的點評、建議和改寫。</td>
+        </tr>
+        <tr>
+            <td>課外書籍</td>
+            <td>設有AI聊天室，供用家與AI討論課外書籍，引導深入思考。</td>
+        </tr>
+    </table>
+</div>
+    
     <!-- 範疇選擇 -->
    <div class="box">
     <h2>選擇範疇：</h2>
@@ -587,6 +614,7 @@ document.getElementById("manuscriptPaperBtn").addEventListener("click", function
             showContainer("argumentContainer");
         });
 
+
         function showContainer(containerId) {
             document.getElementById("writingContainer").style.display = "none";
             document.getElementById("readingContainer").style.display = "none";
@@ -603,6 +631,21 @@ document.getElementById("manuscriptPaperBtn").addEventListener("click", function
             if (containerId === "booksContainer") toggleBooksDiscussionState();
             if (containerId === "argumentContainer") toggleArgumentType();
         }
+
+
+// 切換工具功能概覽的顯示和隱藏
+function toggleOverview() {
+    const overviewContainer = document.getElementById("overviewContainer");
+    const toggleBtn = document.getElementById("toggleOverviewBtn");
+    if (overviewContainer.style.display === "none") {
+        overviewContainer.style.display = "block";
+        toggleBtn.textContent = "隱藏工具功能概覽";
+    } else {
+        overviewContainer.style.display = "none";
+        toggleBtn.textContent = "顯示工具功能概覽";
+    }
+}
+        
 
         // 切換寫作類型
         function toggleWritingType() {
