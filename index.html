@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>中文老師的救星</title>
     <style>
+
+
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             max-width: 800px;
@@ -120,6 +122,14 @@
         #writingBtn:hover {
             background-color: #0056b3;
         }
+
+#manuscriptPaperBtn {
+    background-color: #17a2b8;
+}
+#manuscriptPaperBtn:hover {
+    background-color: #138496;
+}
+        
         #argumentBtn:hover {
     background-color: #4B0082; /* 懸停時變為深紫色 */
 }
@@ -182,15 +192,15 @@
     </div>
 
     <!-- 範疇選擇 -->
-    <div class="box">
-        <h2>選擇範疇：</h2>
-        <button id="readingBtn">閱讀</button>
-        <button id="writingBtn">敘事抒情</button>
-        <button id="argumentBtn">議論</button>
-        <button id="expandBtn">整合拓展</button>
-        <button id="booksBtn">課外書籍</button>
-        
-    </div>
+   <div class="box">
+    <h2>選擇範疇：</h2>
+    <button id="readingBtn">閱讀</button>
+    <button id="writingBtn">敘事抒情</button>
+    <button id="argumentBtn">議論</button>
+    <button id="manuscriptPaperBtn">智能原稿紙</button>
+    <button id="expandBtn">整合拓展</button>
+    <button id="booksBtn">課外書籍</button>
+</div>
 
     <!-- 寫作容器 -->
     <div id="writingContainer" class="box">
@@ -402,15 +412,17 @@
     </div>
 
     <script>
+
+
+
+        
         // API 配置信息
         const API_KEYS = [
-            "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",
-            "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",
-            "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"
+            "sk-MoqwsgO8P9MEoCrftvdSYA"
         ];
         let currentApiKeyIndex = 0;
-        const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-        const MODEL = "deepseek/deepseek-r1:free";
+        const API_URL = "https://chatapi.akash.network/api/v1/chat/completions";
+        const MODEL = "DeepSeek-R1";
 
         // 預設寫作題目列表
         const topics = [
@@ -559,6 +571,11 @@
         document.getElementById("readingBtn").addEventListener("click", function() {
             showContainer("readingContainer");
         });
+
+document.getElementById("manuscriptPaperBtn").addEventListener("click", function() {
+    window.open("https://kenchan20141.github.io/manuscriptpaper/", "_blank");
+});
+        
         document.getElementById("booksBtn").addEventListener("click", function() {
             showContainer("booksContainer");
             loadBooksChat();
@@ -1220,50 +1237,58 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-        async function callAPI(prompt) {
-            let attempts = 0;
-            const maxAttempts = API_KEYS.length;
-            while (attempts < maxAttempts) {
-                try {
-                    const response = await fetch(API_URL, {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            model: MODEL,
-                            messages: [{ role: "user", content: prompt }]
-                        })
-                    });
+     async function callAPI(prompt) {
+    let attempts = 0;
+    const maxAttempts = API_KEYS.length;
+    while (attempts < maxAttempts) {
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [{ 
+                        role: "user", 
+                        content: prompt + " 你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。" 
+                    }]
+                })
+            });
 
-                    if (response.status === 429) {
-                        currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
-                        attempts++;
-                        continue;
-                    }
+            if (response.status === 429) {
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+                attempts++;
+                continue;
+            }
 
-                    if (!response.ok) {
-                        throw new Error(`API 調用失敗: ${response.statusText}`);
-                    }
+            if (!response.ok) {
+                throw new Error(`API 調用失敗: ${response.statusText}`);
+            }
 
-                    const data = await response.json();
-                    const content = data.choices[0].message.content.trim();
-                    if (!content || content.includes("<tool_response>")) {
-                        throw new Error("API 回應無效或包含異常標籤");
-                    }
-                    return content;
-                } catch (error) {
-                    console.error(error);
-                    currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
-                    attempts++;
-                    if (attempts >= maxAttempts) {
-                        throw new Error("所有 API 密鑰均無法使用");
-                    }
-                }
+            const data = await response.json();
+            let content = data.choices[0].message.content.trim();
+
+            // 強化過濾邏輯，移除所有可能的 <think> 標籤變體
+            content = content.replace(/<think\s*>.*?<\/think\s*>|<think\s*\/>|<think\s*>|<\/think\s*>/gis, '').trim();
+
+            // 驗證過濾後內容是否有效
+            if (!content) {
+                throw new Error("API 回應無效或過濾後無內容");
+            }
+
+            return content;
+        } catch (error) {
+            console.error(error);
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+            attempts++;
+            if (attempts >= maxAttempts) {
+                throw new Error("所有 API 密鑰均無法使用");
             }
         }
-
+    }
+}
         // 生成寫作題目
         async function generateTopic() {
             const writingType = document.getElementById("writingType").value;
@@ -1681,7 +1706,7 @@ async function submitArgumentOutline() {
 
         async function sendInitialMessage() {
             let toneNote = booksTone === "serious" ? categories["課外書籍"].seriousChatNote : categories["課外書籍"].chatNote;
-            const prompt = `我是一位高中生，正在閱讀《${bookTitle}》，作者是${author}。我想討論的問題是：${discussionQuestion}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，永遠不要列點回應，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
+            const prompt = `我是一位高中生，正在閱讀《${bookTitle}》，作者是${author}。我想討論的問題是：${discussionQuestion}。請用日常的語言回應我，不要過於理論化，言簡意賅地分析並給出例子，然後引導我深入思考。你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。。請不要使用括號解釋你的目的，永遠不要列點回應，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
             addMessageToHistory("ai", "陳SIR正在回應...");
             try {
                 const aiResponse = await callAPI(prompt);
@@ -1704,7 +1729,7 @@ async function submitArgumentOutline() {
             }
             addMessageToHistory("user", userInput);
             let toneNote = booksTone === "serious" ? categories["課外書籍"].seriousChatNote : categories["課外書籍"].chatNote;
-            const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，必須詳細分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
+            const prompt = `我是一位高中生，正在與你討論《${bookTitle}》中的問題。我的上一條信息是：${userInput}。請用日常的語言回應我，不要過於理論化，必須詳細分析並給出例子，然後引導我深入思考。你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。教學筆記：${toneNote}`;
             addMessageToHistory("ai", "陳SIR正在回應...");
             try {
                 const aiResponse = await callAPI(prompt);
