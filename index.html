@@ -1290,11 +1290,12 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-     async function callAPI(prompt) {
+    async function callAPI(prompt, button) {
     let attempts = 0;
     const maxAttempts = API_KEYS.length;
     while (attempts < maxAttempts) {
         try {
+            button.disabled = true; // 鎖定按鍵
             const response = await fetch(API_URL, {
                 method: "POST",
                 headers: {
@@ -1339,6 +1340,8 @@ async function submitArgumentOutline() {
             if (attempts >= maxAttempts) {
                 throw new Error("所有 API 密鑰均無法使用");
             }
+        } finally {
+            button.disabled = false; // 解除鎖定
         }
     }
 }
