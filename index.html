@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中文老師的救星</title>
+    <title>🐥中文老師的救星</title>
     <style>
 
 
@@ -185,7 +185,7 @@
     </style>
 </head>
 <body>
-    <h1>中文老師的救星</h1>
+    <h1>🐥中文老師的救星</h1>
 
    <!-- 工具功能概覽按鈕 -->
 <div class="box">
@@ -231,12 +231,12 @@
     <!-- 範疇選擇 -->
    <div class="box">
     <h2>選擇範疇：</h2>
-    <button id="readingBtn">閱讀</button>
-    <button id="writingBtn">敘事抒情</button>
-    <button id="argumentBtn">議論</button>
-    <button id="manuscriptPaperBtn">智能原稿紙</button>
-    <button id="expandBtn">整合拓展</button>
-    <button id="booksBtn">課外書籍</button>
+    <button id="readingBtn">📕閱讀</button>
+    <button id="writingBtn">✏敘事抒情</button>
+    <button id="argumentBtn">📋議論</button>
+    <button id="manuscriptPaperBtn">🖥智能原稿紙</button>
+    <button id="expandBtn">📂整合拓展</button>
+    <button id="booksBtn">📚課外書籍</button>
 </div>
 
     <!-- 寫作容器 -->
@@ -1290,12 +1290,11 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-    async function callAPI(prompt, button) {
+     async function callAPI(prompt) {
     let attempts = 0;
     const maxAttempts = API_KEYS.length;
     while (attempts < maxAttempts) {
         try {
-            button.disabled = true; // 鎖定按鍵
             const response = await fetch(API_URL, {
                 method: "POST",
                 headers: {
@@ -1340,8 +1339,6 @@ async function submitArgumentOutline() {
             if (attempts >= maxAttempts) {
                 throw new Error("所有 API 密鑰均無法使用");
             }
-        } finally {
-            button.disabled = false; // 解除鎖定
         }
     }
 }
