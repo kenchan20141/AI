@@ -189,12 +189,12 @@
 
    <!-- 工具功能概覽按鈕 -->
 <div class="box">
-    <button id="toggleOverviewBtn" onclick="toggleOverview()">顯示工具功能概覽</button>
+    <button id="toggleOverviewBtn" onclick="toggleOverview()">顯示「功能概覽」</button>
 </div>
 
 <!-- 工具功能概覽（初始隱藏） -->
 <div id="overviewContainer" class="box" style="display: none;">
-    <h2>工具功能概覽</h2>
+    <h2>功能概覽</h2>
     <p>本工具旨在協助同學練習寫作卷和閱讀卷，並提供課外書籍討論。以下是主要功能：</p>
     <table>
         <tr>
@@ -228,15 +228,21 @@
     </table>
 </div>
     
-    <!-- 範疇選擇 -->
-   <div class="box">
+   <!-- 範疇選擇 -->
+<div class="box">
     <h2>選擇範疇：</h2>
     <button id="readingBtn">📕閱讀</button>
     <button id="writingBtn">✏敘事抒情</button>
     <button id="argumentBtn">📋議論</button>
-    <button id="manuscriptPaperBtn">🖥智能原稿紙</button>
     <button id="expandBtn">📂整合拓展</button>
     <button id="booksBtn">📚課外書籍</button>
+</div>
+
+<!-- 工具選擇 -->
+<div class="box">
+    <h2>選擇工具：</h2>
+    <button id="manuscriptPaperBtn">🖥智能原稿紙</button>
+    <button id="ocrBtn" style="background-color: #17a2b8;">✍手寫文字轉換電腦文字</button>
 </div>
 
     <!-- 寫作容器 -->
@@ -611,6 +617,13 @@
 
 document.getElementById("manuscriptPaperBtn").addEventListener("click", function() {
     window.open("https://kenchan20141.github.io/manuscriptpaper/", "_blank");
+});
+
+        // 為「手寫文字轉換電腦文字」按鈕添加點擊事件處理函數
+document.getElementById("ocrBtn").addEventListener("click", function() {
+    if (confirm("請謹慎保護個人私隱，上傳檔案前，必須先確認圖片或PDF頁面沒有透露任何個人資料，例如姓名和學校名稱等。")) {
+        window.open("https://www.i2ocr.com/free-online-image-ocr", "_blank");
+    }
 });
         
         document.getElementById("booksBtn").addEventListener("click", function() {
