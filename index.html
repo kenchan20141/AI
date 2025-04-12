@@ -20,6 +20,20 @@
             text-align: center;
             color: #333;
         }
+
+/* 確保標題不被背景影響 */
+.title-container {
+    background: none;
+    padding: 0;
+}
+
+.title-container {
+    position: relative;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+        
         .box {
             background: white;
             border-radius: 8px;
@@ -185,7 +199,14 @@
     </style>
 </head>
 <body>
-    <span class="title-text">🐥中文老師的救星</span>
+   
+
+    <div class="title-container">
+    <h1>
+         <span class="title-text">🐥中文老師的救星</span>
+    </h1>
+</div>
+
 
    <!-- 工具功能概覽按鈕 -->
 <div class="box">
